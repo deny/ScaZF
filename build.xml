@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project name="skazf" basedir="" default="help">
+
+	<php function="dirname" returnProperty="skazf.dir">
+		<param value="${phing.file.skazf}"/>
+	</php>
+
+	<!-- load configuration -->
+	<property file="${skazf.dir}/config/skazf.config" />
+
+	<target name="help">
+		<echo msg="SkaZF options:" />
+		<echo msg="" />
+	</target>
+
+</project>
