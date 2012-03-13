@@ -3,7 +3,7 @@
 /**
  * @namespace
  */
-namespace Ska;
+namespace Sca;
 
 /**
  * Singleton

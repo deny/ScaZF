@@ -1,6 +1,6 @@
 <?php
 
-namespace	Ska\DataObject\Paginator;
+namespace	Sca\DataObject\Paginator;
 
 /**
  * Paginator suitable for use in DataObject
@@ -35,14 +35,14 @@ class Interface implements Zend_Paginator_Adapter_Interface
 	/**
 	 * Input data Factory name
 	 *
-	 * @var Ska\DataObject\Factory
+	 * @var Sca\DataObject\Factory
 	 */
 	private $oFactory = null;
 
 	/**
 	 * Where definition
 	 *
-	 * @var Ska\DataObject\Where
+	 * @var Sca\DataObject\Where
 	 */
 	private $oWhere = null;
 
@@ -56,12 +56,12 @@ class Interface implements Zend_Paginator_Adapter_Interface
 	/**
 	 * Constructor
 	 *
-	 * @param	Ska_DataObject_Factory	$oFactory		factory that creates this object
+	 * @param	Sca_DataObject_Factory	$oFactory		factory that creates this object
 	 * @param	Zend_Db_Select			$oCountSelect	Select for rows counting
 	 * @param	array					$aOptions		additional options sended to getPage()
-	 * @return	Ska_DataObject_Paginator
+	 * @return	Sca_DataObject_Paginator
 	 */
-	public function __construct(Ska_DataObject_Factory $oFactory, Zend_Db_Select $oCountSelect, array $aOptions = [])
+	public function __construct(Sca_DataObject_Factory $oFactory, Zend_Db_Select $oCountSelect, array $aOptions = [])
 	{
 		$this->oFactory		= $oFactory;
 		$this->oCountSelect	= $oCountSelect;
@@ -107,7 +107,7 @@ class Interface implements Zend_Paginator_Adapter_Interface
 	{
 		if($this->iCount !== null)
 		{
-			throw new Ska\DataObject\Exception('You cannot set ORDER after query execution');
+			throw new Sca\DataObject\Exception('You cannot set ORDER after query execution');
 		}
 
 		$this->aOrder = $aOrder;
@@ -116,23 +116,23 @@ class Interface implements Zend_Paginator_Adapter_Interface
 	/**
 	 * Change query where
 	 *
-	 * @param	string|Ska\DataObject\Where		$mWhere		where string or Where object
+	 * @param	string|Sca\DataObject\Where		$mWhere		where string or Where object
 	 * @return	void
 	 */
 	public function setWhere($mWhere)
 	{
 		if($this->iCount !== null)
 		{
-			throw new Ska\DataObject\Exception('You cannot set WHERE after query execution');
+			throw new Sca\DataObject\Exception('You cannot set WHERE after query execution');
 		}
 
-		if($mWhere instanceof Ska\DataObject\Where)
+		if($mWhere instanceof Sca\DataObject\Where)
 		{
 			$this->oWhere = $mWhere;
 		}
 		else
 		{
-			$this->oWhere = new Ska\DataObject\Where($mWhere);
+			$this->oWhere = new Sca\DataObject\Where($mWhere);
 		}
 	}
 }

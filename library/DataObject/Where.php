@@ -1,6 +1,6 @@
 <?php
 
-namespace Ska\DataObject;
+namespace Sca\DataObject;
 
 /**
  * Class that automates creating SQL conditions
@@ -28,13 +28,13 @@ class Where
 	/**
 	 * Constructor
 	 *
-	 * @param	string|\Ska\DataObject\Where		$mWhere		where string or Where object
+	 * @param	string|\Sca\DataObject\Where		$mWhere		where string or Where object
 	 * @param	string|null						$mValue		value for where string
-	 * @return	\Ska\DataObject\Where
+	 * @return	\Sca\DataObject\Where
 	 */
 	public function __construct($mWhere = null, $mValue = null)
 	{
-		$this->oDb = \Ska\Config::getInstance()->getDb();
+		$this->oDb = \Sca\Config::getInstance()->getDb();
 
 		if($mWhere !== null)
 		{
@@ -45,9 +45,9 @@ class Where
 	/**
 	 * It adds next element of the condition, preceded by a logical AND
 	 *
-	 * @param	string|\Ska\DataObject\Where		$mWhere		where string or Where object
+	 * @param	string|\Sca\DataObject\Where		$mWhere		where string or Where object
 	 * @param	string|null						$mValue		value for where string
-	 * @return	\Ska\DataObject\Where
+	 * @return	\Sca\DataObject\Where
 	 */
 	public function addAnd($mWhere, $mValue = null)
 	{
@@ -64,9 +64,9 @@ class Where
 	/**
 	 * It adds next element of the condition, preceded by a logical OR
 	 *
-	 * @param	string|\Ska\DataObject\Where		$mWhere		where string or Where object
+	 * @param	string|\Sca\DataObject\Where		$mWhere		where string or Where object
 	 * @param	string|null						$mValue		value for where string
-	 * @return	\Ska\DataObject\Where
+	 * @return	\Sca\DataObject\Where
 	 */
 	public function addOr($mWhere, $mValue = null)
 	{
@@ -117,7 +117,7 @@ class Where
 	/**
 	 * Parse the pased value to the part of SQL command
 	 *
-	 * @param	string|\Ska\DataObject\Where		$mWhere		where string or Where object
+	 * @param	string|\Sca\DataObject\Where		$mWhere		where string or Where object
 	 * @param	string|null						$mValue		value for where string
 	 * @return	string
 	 */
@@ -125,7 +125,7 @@ class Where
 	{
 		$sResult = '';
 
-		if($mWhere instanceof Ska_DataObject_Where)
+		if($mWhere instanceof Sca_DataObject_Where)
 		{
 			$sResult .= '('. $mWhere->getWhere() .')';
 		}

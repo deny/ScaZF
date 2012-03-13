@@ -1,6 +1,6 @@
 <?php
 
-namespace Ska\DataObject
+namespace Sca\DataObject
 
 /**
  * Exception class for DataObject Errors

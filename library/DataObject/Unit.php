@@ -1,6 +1,6 @@
 <?php
 
-namespace Ska\DataObject;
+namespace Sca\DataObject;
 
 /**
  * Abstract class using to create models
@@ -58,13 +58,15 @@ abstract class Unit
 	 * Warning: In child class use this constructor!
 	 *
 	 * @param	array	$aPrimaryKey	array with primary key description (<field name> => <field value>) for each table
-	 * @return	\Ska\DataObject\Unit
+	 * @return	\Sca\DataObject\Unit
 	 */
 	public function __construct(array $aPrimaryKey)
 	{
-		$this->oDb = \Ska\Config::getInstance()->getDb();
+		$this->oDb = \Sca\Config::getInstance()->getDb();
 		$this->aPrimaryKey = $aPrimaryKey;
 		$this->aTables = array_keys($aPrimaryKey);
+		$this->aModified = array_fill_keys($this->aTables, false);
+		$this->aModifiedFields  = array_fill_keys($this->aTables, []);
 	}
 
 	/**
@@ -94,7 +96,7 @@ abstract class Unit
 	 */
 	public function __wakeup()
 	{
-		$this->oDb = \Ska\Config::getInstance()->getDb();
+		$this->oDb = \Sca\Config::getInstance()->getDb();
 	}
 
 	/**
@@ -108,10 +110,12 @@ abstract class Unit
 		{
 			$aTmp[] = $sTable .'.*';
 		}
-		$sQuery = 'DELETE '. implode(', ', $aTmp) .' FROM '. implode(', ', $this->aTables);
-		$sQuery .= ' WHERE '. $this->getWhereString();
 
-		$this->oDb->query($sQuery);
+		$this->oDb->query(
+			'DELETE '. implode(', ', $aTmp) .' '.
+			'FROM '. implode(', ', $this->aTables) .' '.
+			'WHERE '. $this->getWhereString()
+		);
 		$this->bDeleted = true;
 	}
 
@@ -125,31 +129,31 @@ abstract class Unit
 		// is deleted
 		if($this->bDeleted)
 		{
-			throw new Ska_DataObject_Exception('Object is already deleted, you cannot save it.');
+			throw new \Sca\DataObject\Exception('Object is already deleted, you cannot save it.');
 		}
 
-		// check whether any data has been modified
-		if($this->bModified)
+		if($this->isModified())
 		{
-			$this->oDb->update(
-				$this->sTableName,
-				$this->aModifiedFields,
-				$this->getWhereString()
-			);
+			// check whether any data has been modified
+			$aTables = array();
+			$aData = array();
+			foreach($this->aModified as $sTable => $bModified)
+			{
+				if($bModified)
+				{
+					$aTables[] = $sTable;
+					foreach($this->aModifiedFields[$sTable] as $sField => $sValue)
+					{
+						$aData[$sTable .'.'. $sField] = $sValue;
+					}
 
-			$this->aModifiedFields = array();
-			$this->bModified = false;
+					$this->aModifiedFields[$sTable] = array();
+					$this->aModified[$sTable] = false;
+				}
+			}
+
+			$this->oDb->update($aTables, $aData, $this->getWhereString());
 		}
-	}
-
-	/**
-	 * Returns DB table name
-	 *
-	 * @return	string
-	 */
-	protected function getTableName()
-	{
-		return $this->sTableName;
 	}
 
 	/**
@@ -159,7 +163,7 @@ abstract class Unit
 	 */
 	final protected function isModified()
 	{
-		return $this->bModified;
+		return in_array(true, $this->bModified, true);
 	}
 
 	/**
@@ -172,8 +176,8 @@ abstract class Unit
 	 */
 	final protected function setDataValue($sTable, $sField, $mValue)
 	{
-		$this->aModifiedFields[$sField] = $mValue;
-		$this->bModified = true;
+		$this->aModifiedFields[$sTable][$sField] = $mValue;
+		$this->aModified[$sTable] = true;
 	}
 
 	/**
@@ -183,7 +187,7 @@ abstract class Unit
 	 */
 	private function getWhereString()
 	{
-		$oWhere = new Ska_DataObject_Where();
+		$oWhere = new Where();
 
 		foreach($this->aPrimaryValue as $sTable => $aKeys)
 		{

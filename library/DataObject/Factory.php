@@ -1,6 +1,6 @@
 <?php
 
-namespace Ska\DataObject;
+namespace Sca\DataObject;
 
 /**
  * Abstract class using to create factory for models
@@ -11,7 +11,7 @@ namespace Ska\DataObject;
  */
 abstract class Factory
 {
-	use \Ska\Singleton;
+	use \Sca\Singleton;
 	
 	/**
 	 * Instance of db adapter
@@ -54,11 +54,11 @@ abstract class Factory
 	 *
 	 * @param	string	$sTableName		name of DB table connected with model
 	 * @param	array	$aPrimaryKey	array with primay key fields
-	 * @return	Ska\DataObject\Factory
+	 * @return	Sca\DataObject\Factory
 	 */
 	public function __construct($sTableName, array $aPrimaryKey)
 	{
-		$this->oDb = \Ska\Config::getInstance()->getDb();
+		$this->oDb = \Sca\Config::getInstance()->getDb();
 
 		$this->sTableName = $sTableName;
 		$this->aPrimaryKey = $aPrimaryKey;
@@ -97,7 +97,7 @@ abstract class Factory
 	/**
 	 * Returns an array of object that matches the given condition
 	 *
-	 * @param	string|Ska\DataObject\Where	$oWhere		where string or Where object
+	 * @param	string|Sca\DataObject\Where	$oWhere		where string or Where object
 	 * @param	array						$aOrder		array with order definition
 	 * @param	array						$aOptions	array with additional options
 	 * @return	array
@@ -126,7 +126,7 @@ abstract class Factory
 	 *
 	 * @param	mixed	$mId		specific key value or an array (<field> => <value>)
 	 * @param	array	$aOptions	array with additional options
-	 * @return	Ska\DataObject\Unit
+	 * @return	Sca\DataObject\Unit
 	 */
 	public function getOne($mId, array $aOptions = [])
 	{
@@ -136,7 +136,7 @@ abstract class Factory
 
 		if(empty($aDbRes))
 		{
-			throw new Ska\DataObject\Exception('The object with the specified ID does not exist');
+			throw new Sca\DataObject\Exception('The object with the specified ID does not exist');
 		}
 
 		return $this->createObject($aDbRes[0], $aOptions);
@@ -148,7 +148,7 @@ abstract class Factory
 	 * @param	int								$iPage		page number
 	 * @param	int								$iCount		number of results per page
 	 * @param	array							$aOrder		array with order definition
-	 * @param	string|Ska\DataObject\Where		$oWhere		where string or Where object
+	 * @param	string|Sca\DataObject\Where		$oWhere		where string or Where object
 	 * @param	array							$aOptions	array with additional options
 	 * @return	array
 	 */
@@ -166,7 +166,7 @@ abstract class Factory
 		// adds where
 		if($mWhere !== null)
 		{
-			if($mWhere instanceof Ska\DataObject\Where)
+			if($mWhere instanceof Sca\DataObject\Where)
 			{
 				$mWhere = $mWhere->getWhere();
 			}
@@ -185,7 +185,7 @@ abstract class Factory
 	 * @param	int								$iPage		page number
 	 * @param	int								$iCount		number of results per page
 	 * @param	array							$aOrder		array with order definition
-	 * @param	string|Ska\DataObject\Where		$oWhere		where string or Where object
+	 * @param	string|Sca\DataObject\Where		$oWhere		where string or Where object
 	 * @param	array							$aOptions	array with additional options
 	 * @return	array
 	 */
@@ -195,7 +195,7 @@ abstract class Factory
 
 		if($mWhere !== null)
 		{
-			if($mWhere instanceof Ska\DataObject\Where)
+			if($mWhere instanceof Sca\DataObject\Where)
 			{
 				$mWhere = $mWhere->getWhere();
 			}
@@ -223,7 +223,7 @@ abstract class Factory
 	 *
 	 * @param	array	$aRow	one row from database
 	 * @param	array	$aOptions	array with additional options
-	 * @return	Ska\DataObject\Unit
+	 * @return	Sca\DataObject\Unit
 	 */
 	abstract public function createObject(array $aRow, array $aOptions = []);
 
@@ -313,20 +313,20 @@ abstract class Factory
 	 */
 	protected function getWhereString($mId)
 	{
-		$oWhere = new Ska\DataObject\Where();
+		$oWhere = new Sca\DataObject\Where();
 
 		if(count($this->aPrimaryKey) > 1)
 		{
 			// many fields in key
 			foreach($mId as $aKeys)
 			{
-				$oWhere2 = new Ska\DataObject\Where();
+				$oWhere2 = new Sca\DataObject\Where();
 
 				foreach($this->aPrimaryKey as $sField)
 				{
 					if(!isset($aKeys[$sField]))
 					{
-						throw new Ska\DataObject\Exception('No value for key part: ' . $sField);
+						throw new Sca\DataObject\Exception('No value for key part: ' . $sField);
 					}
 
 					// where for a single field
