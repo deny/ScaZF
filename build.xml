@@ -1,16 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<project name="skazf" basedir="" default="help">
+<project name="scazf" basedir="" default="help">
 
-	<php function="dirname" returnProperty="skazf.dir">
+	<php function="dirname" returnProperty="scazf.dir">
 		<param value="${phing.file.skazf}"/>
 	</php>
 
 	<!-- load configuration -->
-	<property file="${skazf.dir}/config/skazf.config" />
+	<property file="${scazf.dir}/config/scazf.config" />
 
 	<target name="help">
-		<echo msg="SkaZF options:" />
+		<echo msg="ScaZF options:" />
 		<echo msg="" />
 	</target>
 

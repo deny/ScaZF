@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xsd:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+
+<!-- Root element -->
+    <xs:element type="PackageType" ></xs:element>
+
+<!-- Package element -->
+	<xs:complexType name="PackageType">
+		<xs:attribute name="use" type="xs:string"></xs:attribute>
+    	<xs:sequence>
+    		<xs:element type="ModelType" minOccurs="1"/>
+    	</xs:sequence>
+    </xs:complexType>
+
+<!-- Model element -->
+	<xs:complexType name="ModelType">
+		<xs:attribute name="extends" type="xs:string"></xs:attribute>
+    	<xs:sequence>
+    		<xs:element name="field" type="FieldType" minOccurs="1" />
+    	</xs:sequence>
+    </xs:complexType>
+
+<!-- Field element -->
+	<xs:complexType name="FieldType">
+		<xs:attribute name="name"		type="xsd:string"	use="required"></xs:attribute>
+		<xs:attribute name="type"		type="xsd:string"	use="required"></xs:attribute>
+		<xs:attribute name="access"		type="xsd:string"></xs:attribute>
+		<xs:attribute name="validate"	type="xsd:string"></xs:attribute>
+		<xs:attribute name="options"	type="xsd:string"></xs:attribute>
+		<xs:attribute name="ref"		type="xsd:string"></xs:attribute>
+		<xs:attribute name="default"	type="xsd:string"></xs:attribute>
+    </xs:complexType>
+
+</xs:schema>
