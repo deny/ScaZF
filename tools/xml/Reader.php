@@ -93,6 +93,18 @@ class Reader extends XMLReader
 	}
 
 	/**
+	 * Return attribute value
+	 *
+	 * @param	string		$sName 			attribute name
+	 * @param	string		$sDefaultValue	default value
+	 * @return	string
+	 */
+	public function getAttribute($sName, $sDefaultValue = null)
+	{
+		return $this->isAttrSet($sName) ? parent::getAttribute($sName) : $sDefaultValue;
+	}
+
+	/**
 	 * Validate document against XSD
 	 *
 	 * @param	string	$sFile		path to file

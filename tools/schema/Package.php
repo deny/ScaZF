@@ -6,7 +6,7 @@
 namespace ScaZF\Tool\Schema;
 
 /**
- * Package parser
+ * Package description object
  *
  * @author	Daniel Kózka
  */
@@ -47,11 +47,14 @@ class Package
 		$this->aModels = $aModels;
 		$this->aConnections = empty($sUses) ? array() : explode(',', $sUses);
 		$this->aConnections = array_unique($this->aConnections);
+
 		foreach($this->aConnections as &$sPackage)
 		{
 			$sPackage = ucfirst(strtolower($sPackage));
 		}
 	}
+
+// GETTERS
 
 	/**
 	 * Get model from package by name

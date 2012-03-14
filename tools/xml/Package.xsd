@@ -27,7 +27,6 @@
 		<xs:attribute name="access"		type="xsd:string"></xs:attribute>
 		<xs:attribute name="validate"	type="xsd:string"></xs:attribute>
 		<xs:attribute name="options"	type="xsd:string"></xs:attribute>
-		<xs:attribute name="ref"		type="xsd:string"></xs:attribute>
 		<xs:attribute name="default"	type="xsd:string"></xs:attribute>
     </xs:complexType>
 
