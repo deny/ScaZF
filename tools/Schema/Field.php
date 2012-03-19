@@ -36,9 +36,9 @@ class Field
 	/**
 	 * Field access definition
 	 *
-	 * @var	string
+	 * @var	array
 	 */
-	protected $sAccess;
+	protected $aAccess;
 
 	/**
 	 * Defaul value
@@ -80,7 +80,7 @@ class Field
 		$this->sType = $aMatches[1];
 		$this->aTypeAttr = empty($aMatches[2]) ? array() : explode(',', $aMatches[2]);
 
-		$this->sAccess = $sAccess;
+		$this->aAccess = empty($sAccess) ? array('get','set') : explode(',', $sAccess);
 		$this->sDefault = $sDefault;
 		$this->aOptions = empty($sOptions) ? array() : explode(',', $sOptions);
 		$this->aValidators = empty($sValidators) ? array() : explode(',', $sValidators);
@@ -91,11 +91,11 @@ class Field
 	/**
 	 * Return field access info
 	 *
-	 * @return	string
+	 * @return	array
 	 */
 	public function getAccess()
 	{
-		return $this->sAccess;
+		return $this->aAccess;
 	}
 
 	/**
@@ -192,5 +192,15 @@ class Field
 	public function hasOptions()
 	{
 		return empty($this->aOptions);
+	}
+
+	/**
+	 * Check if field type is reference to other model
+	 *
+	 * @return	bool
+	 */
+	public function isModelType()
+	{
+		return !empty($this->sType) && $this->sType[0] == strtouppe($this->sType[0]);
 	}
 }

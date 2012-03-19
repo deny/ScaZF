@@ -14,6 +14,8 @@ use ScaZF\Tool\Xml\Reader;
  */
 class Manager
 {
+	use ScaZF\Tool\Singleton;
+
 	/**
 	 * Array for loaded packages objects
 	 *
@@ -36,13 +38,20 @@ class Manager
 	protected $sXsdPath = '.';
 
 	/**
-	 * Constructor
+	 * Protected constructor
+	 *
+	 * @return	ScaZF\Tool\Schema\Manager
+	 */
+	protected function __construct() {}
+
+	/**
+	 * Load schema from file (check XML and creates model descriptions)
 	 *
 	 * @param	string	$sSchemaPath	path to model description
 	 * @param	string	$sXsdPath		path to XSD file
-	 * @return	ScaZF\Tool\Schema\Manager
+	 * @return	void
 	 */
-	public function __construct($sSchemaPath, $sXsdPath)
+	public function init($sSchemaPath, $sXsdPath)
 	{
 		$this->sSchemaPath = $sSchemaPath;
 		$this->sXsdPath = $sXsdPath;
