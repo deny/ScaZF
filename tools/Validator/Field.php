@@ -3,12 +3,12 @@
 /**
  * @namespace
  */
-namespace ScaZF\Tool\Validator\Field;
+namespace ScaZF\Tool\Validator;
 
 use ScaZF\Tool\Validator\ValidatorAbstract;
 
 /**
- * Field type validator
+ * Field validator
  *
  * @author	Daniel Kózka
  */
@@ -22,7 +22,7 @@ class Field extends ValidatorAbstract
 	/**
 	 * Constructor
 	 *
-	 * @return	ScaZF\Tool\Validator\Field\TypeModel
+	 * @return	ScaZF\Tool\Validator\Field
 	 */
 	public function __construct()
 	{
@@ -41,8 +41,8 @@ class Field extends ValidatorAbstract
 	 */
 	protected function validate(array $aValues)
 	{
-		$oField = $aValues[1];
-		if(!$oField instanceof Field)
+		$oField = $aValues[0];
+		if(!$oField instanceof \ScaZF\Tool\Schema\Field)
 		{
 			throw \Exception('Validate value must be instance of Schema\Field');
 		}

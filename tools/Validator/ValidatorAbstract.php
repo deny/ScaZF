@@ -42,7 +42,7 @@ class ValidatorAbstract
 	 */
 	public function __construct($iValCount, $aMessages)
 	{
-		$this->iValCount = $iValCount;
+		$this->iValCount = $iValCount > 1 ? $iValCount : 1;
 		$this->aMessages = $aMessages;
 	}
 
@@ -59,6 +59,7 @@ class ValidatorAbstract
 			throw new \Exception('Wrong validate values count');
 		}
 
+		$this->aErrors = array();
 		$this->validate($aValues);
 
 		return $this->hasErrors();
@@ -104,7 +105,7 @@ class ValidatorAbstract
 	protected function subValiadte($mValues, $oValidator)
 	{
 		$mValues = is_array($mValues) ? $mValues : array($mValues);
-		
+
 		if(!$oValidator->isValid($aValues))
 		{
 			$this->appendError($oTmp->getErrors());

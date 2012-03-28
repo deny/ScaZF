@@ -54,15 +54,16 @@ class Schema
 	 */
 	protected function checkPackage(Package $oPackage)
 	{
-		$oTmp = new Model\Model();
+		$oVal = new Model();
+
 		foreach($oPackage->getModels() as $oModel)
 		{
-			if(!$oTmp->isValid(array($oField)))
+			if(!$oVal->isValid(array($oField)))
 			{
 				$this->addMsg(
 					$oPackage->getName(),
 					'general',
-					$oTmp->getErrors()
+					$oVal->getErrors()
 				);
 			}
 
@@ -78,15 +79,16 @@ class Schema
 	 */
 	protected function checkModel(Model $oModel)
 	{
-		$oTmp = new Field\Field();
+		$oVal = new Field();
+
 		foreach($oModel->getFields() as $oField)
 		{
-			if(!$oTmp->isValid(array($oField)))
+			if(!$oVal->isValid(array($oField)))
 			{
 				$this->addMsg(
 					$oModel->getName(),
 					$oField->getName(),
-					$oTmp->getErrors()
+					$oVal->getErrors()
 				);
 			}
 		}
@@ -99,16 +101,16 @@ class Schema
 	 */
 	protected function addMsg($sModel, $sType, $sMessage)
 	{
-		if(!isset($this->aMessages[$sModel]))
+		if(!isset($this->aErrors[$sModel]))
 		{
-			$this->aMessages[$sModel] = array();
+			$this->aErrors[$sModel] = array();
 		}
 
-		if(!isset($this->aMessages[$sModel][$sType))
+		if(!isset($this->aErrors[$sModel][$sType))
 		{
-			$this->aMessages[$sModel][$sType] = array();
+			$this->aErrors[$sModel][$sType] = array();
 		}
 
-		$this->aMessages[$sModel][$sType][] = $sMessage;
+		$this->aErrors[$sModel][$sType][] = $sMessage;
 	}
 }
