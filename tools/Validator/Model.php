@@ -6,6 +6,7 @@
 namespace ScaZF\Tool\Validator;
 
 use ScaZF\Tool\Validator\ValidatorAbstract;
+use ScaZF\Tool\Schema\Manager;
 
 /**
  * Model validator
@@ -44,11 +45,14 @@ class Model extends ValidatorAbstract
 
 		try
 		{
-			$oExtended = Manage::getInstance()->getModel($aValues[0]);
+			if($oModel->hasExtends())
+			{
+				$oExtends = Manager::getInstance()->getModel($oModel->getExtends());
+			}
 		}
-		catch(Exception $oExc) // if ref model doesn't exist
+		catch(\ScaZF\Tool\Schema\Exception $oExc) // if ref model doesn't exist
 		{
-			$this->error(self::WRONG_EXTEND, $aValues[0]);
+			$this->error(self::WRONG_EXTEND, $oModel->getExtends());
 		}
 	}
 }

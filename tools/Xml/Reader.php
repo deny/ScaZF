@@ -3,14 +3,14 @@
 /**
  * @namespace
  */
-namespace ScaZF\Tools\Xml;
+namespace ScaZF\Tool\Xml;
 
 /**
  * XMLReader with additional functions
  *
  * @author Daniel Kózka
  */
-class Reader extends XMLReader
+class Reader extends \XMLReader
 {
 	/**
 	 * Move cursor to next node
@@ -73,7 +73,7 @@ class Reader extends XMLReader
 		{
 			if($this->nodeType == self::ELEMENT && $this->name == $sName)
 			{
-				break;
+				return true;
 			}
 		}
 
@@ -88,7 +88,7 @@ class Reader extends XMLReader
 	 */
 	public function isAttrSet($sName)
 	{
-		$sRes = $this->getAttribute($sName);
+		$sRes = parent::getAttribute($sName);
 		return !empty($sRes);
 	}
 
@@ -111,7 +111,7 @@ class Reader extends XMLReader
 	 * @param	string	$sSchema	patch to schema
 	 * @return	bool
 	 */
-	public static schemaValidate($sFile, $sSchema)
+	public static function schemaValidate($sFile, $sSchema)
 	{
 		$oReader = new self();
 		if(!$oReader->open($sFile))
@@ -121,17 +121,17 @@ class Reader extends XMLReader
 
 		$oReader->setSchema($sSchema);
 
-		$bValid = true;
+		$sErro = false;
 		while($oReader->read())
 		{
 			if(!$oReader->isValid())
 			{
-				$bValid = false;
+				$sError = $oReader->name;
 				break;
 			}
 		}
 		$oReader->close();
 
-		return $bValid;
+		return $sError;
 	}
 }

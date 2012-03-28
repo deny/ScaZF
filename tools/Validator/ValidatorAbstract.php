@@ -10,7 +10,7 @@ namespace ScaZF\Tool\Validator;
  *
  * @author	Daniel Kózka
  */
-class ValidatorAbstract
+abstract class ValidatorAbstract
 {
 	/**
 	 * Input values count
@@ -42,7 +42,7 @@ class ValidatorAbstract
 	 */
 	public function __construct($iValCount, $aMessages)
 	{
-		$this->iValCount = $iValCount > 1 ? $iValCount : 1;
+		$this->iValCount = $iValCount;
 		$this->aMessages = $aMessages;
 	}
 
@@ -52,7 +52,7 @@ class ValidatorAbstract
 	 * @param	array	$aValues	validated values
 	 * @return	bool
 	 */
-	public function isValid(array $aValues);
+	public function isValid(array $aValues)
 	{
 		if(isset($this->iValCount) && count($aValues) != $this->iValCount)
 		{
@@ -106,9 +106,9 @@ class ValidatorAbstract
 	{
 		$mValues = is_array($mValues) ? $mValues : array($mValues);
 
-		if(!$oValidator->isValid($aValues))
+		if(!$oValidator->isValid($mValues))
 		{
-			$this->appendError($oTmp->getErrors());
+			$this->appendError($oValidator->getErrors());
 		}
 	}
 
@@ -125,7 +125,7 @@ class ValidatorAbstract
 		{
 			throw new \Exception('No error message for "'. $sType .'" error');
 		}
-		$sMsg = $this->aMessages[$sType]
+		$sMsg = $this->aMessages[$sType];
 
 	// additional parameters
 		if(!empty($mParams))

@@ -47,7 +47,7 @@ class Model
 	 * @param	string		$sName		model name
 	 * @param	string		$sExtends	extended model
 	 * @param	array		$aFields	model fields
-	 * @return	ScaZF\Tool\Schema\Model
+	 * @return	\ScaZF\Tool\Schema\Model
 	 */
 	public function __construct($sPackage, $sName, $sExtends, array $aFields)
 	{

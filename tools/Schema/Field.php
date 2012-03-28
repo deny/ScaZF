@@ -70,15 +70,16 @@ class Field
 	 * @param	string		$sDefault		default value
 	 * @param	string		$sOptions		field options
 	 * @param	string		$sValidators	field options
+	 * @return	\ScaZF\Tool\Schema\Field
 	 */
 	public function __construct($sName, $sType, $sAccess, $sDefault, $sOptions, $sValidators)
 	{
 		$aMatches = null;
-		preg_match('/^([a-zA-Z]+)(\([0-9, ]+\))?/', $sType, $aMatches);
+		preg_match('/^([a-zA-Z:]+)(\([0-9, \*]+\))?/', $sType, $aMatches);
 
 		$this->sName = $sName;
 		$this->sType = $aMatches[1];
-		$this->aTypeAttr = empty($aMatches[2]) ? array() : explode(',', $aMatches[2]);
+		$this->aTypeAttr = empty($aMatches[2]) ? array() : explode(',', trim($aMatches[2],'()'));
 
 		$this->aAccess = empty($sAccess) ? array('get','set') : explode(',', $sAccess);
 		$this->sDefault = $sDefault;
@@ -141,7 +142,7 @@ class Field
 	/**
 	 * Return field type attribute
 	 *
-	 * @return	int
+	 * @return	string
 	 */
 	public function getTypeAttr($iPosition = 0)
 	{
@@ -150,7 +151,17 @@ class Field
 			throw new Exception('There is no field type attribute: '. $iPosition);
 		}
 
-		return (int) $this->aTypeAttr[$iPosition];
+		return $this->aTypeAttr[$iPosition];
+	}
+
+	/**
+	 * Return field type attributes
+	 *
+	 * @return	array
+	 */
+	public function getTypeAttribs()
+	{
+		return $this->aTypeAttr;
 	}
 
 	/**
@@ -201,6 +212,6 @@ class Field
 	 */
 	public function isModelType()
 	{
-		return !empty($this->sType) && $this->sType[0] == strtouppe($this->sType[0]);
+		return !empty($this->sType) && $this->sType[0] == strtoupper($this->sType[0]);
 	}
 }

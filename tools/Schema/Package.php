@@ -39,12 +39,18 @@ class Package
 	 * @param	string	$sName		package name
 	 * @param	array	$aModels	package models
 	 * @param	string	$sUses		other packages
-	 * @return	ScaZF\Tool\Schema\Package
+	 * @return	\ScaZF\Tool\Schema\Package
 	 */
 	public function __construct($sName, array $aModels, $sUses)
 	{
+		$aTmp = array();
+		foreach($aModels as $oModel)
+		{
+			$aTmp[$oModel->getName()] = $oModel;
+		}
+
 		$this->sName = $sName;
-		$this->aModels = $aModels;
+		$this->aModels = $aTmp;
 		$this->aConnections = empty($sUses) ? array() : explode(',', $sUses);
 		$this->aConnections = array_unique($this->aConnections);
 
@@ -59,13 +65,13 @@ class Package
 	/**
 	 * Get model from package by name
 	 *
-	 * @return	ScaZF\Tool\Schema\Model
+	 * @return	\ScaZF\Tool\Schema\Model
 	 */
 	public function getModel($sName)
 	{
 		if(!isset($this->aModels[$sName]))
 		{
-			throw Exception('Model '. $sName .' in package '. $this->sName .' not found');
+			throw new Exception('Model '. $sName .' in package '. $this->sName .' not found');
 		}
 
 		return $this->aModels[$sName];

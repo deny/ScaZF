@@ -54,24 +54,26 @@ class Field extends ValidatorAbstract
 			case 'json':
 				break;
 			case 'int':
-				$this->subValiadte($oField->getOptions(), new TypeInt()));
+				$this->subValiadte($oField->getTypeAttribs(), new Field\TypeInt());
 				break;
 			case 'string':
-				$this->subValiadte($oField->getOptions(), new TypeString()));
+				$this->subValiadte($oField->getOptions(), new Field\TypeString());
 				break;
 			default: // check if is model definition
-				if(!oField->isModelType()) // if no model type
+				if(!$oField->isModelType()) // if no model type
 				{
 					$this->error(self::WRONG_TYPE, $oField->getType());
 				}
-
-				$this->subValiadte(array($oField->getType(), $oField->getOptions()), new TypeModel()));
+				else
+				{
+					$this->subValiadte(array($oField->getType(), $oField->getTypeAttribs()), new Field\TypeModel());
+				}
 		}
 
 	// access
 		foreach($oField->getAccess() as $sAccess)
 		{
-			if(!in_array($sAccess, array('get', 'set'))
+			if(!in_array($sAccess, array('get', 'set')))
 			{
 				$this->error(self::WRONG_ACCESS, $sAccess);
 			}
@@ -80,7 +82,7 @@ class Field extends ValidatorAbstract
 	// options
 		foreach($oField->getOptions() as $sOption)
 		{
-			if(!in_array($sAccess, array('unsigned', 'unique', 'index', 'null'))
+			if(!in_array($sAccess, array('unsigned', 'unique', 'index', 'null')))
 			{
 				$this->error(self::WRONG_OPTIONS, $sOption);
 			}

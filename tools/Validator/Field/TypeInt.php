@@ -22,7 +22,7 @@ class TypeInt extends ValidatorAbstract
 	/**
 	 * Constructor
 	 *
-	 * @return	ScaZF\Tool\Validator\Field\TypeModel
+	 * @return	\ScaZF\Tool\Validator\Field\TypeModel
 	 */
 	public function __construct()
 	{

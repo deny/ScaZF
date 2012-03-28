@@ -3,7 +3,7 @@
 /**
  * @namespace
  */
-namespace ScaZF\Tools\Validator;
+namespace ScaZF\Tool\Validator;
 
 /**
  * Schema validator
@@ -12,6 +12,8 @@ namespace ScaZF\Tools\Validator;
  */
 class Schema
 {
+	use \ScaZF\Tool\Base\Screamer;
+
 	/**
 	 * Validation messages
 	 *
@@ -26,12 +28,14 @@ class Schema
 	 *
 	 * @return	bool
 	 */
-	public function isValid(Package $oPackage)
+	public function isValid(\ScaZF\Tool\Schema\Package $oPackage)
 	{
+		$this->scream('Start package "'. $oPackage->getName() .'" validate');
 		$this->aErrors = array();
 		$this->checkPackage($oPackage);
+		$this->scream('End package "'. $oPackage->getName() .'" validate');
 
-		return empty($this->aMessages);
+		return empty($this->aErrors);
 	}
 
 	/**
@@ -41,7 +45,7 @@ class Schema
 	 */
 	public function getMessages()
 	{
-		return $this->aMessages;
+		return $this->aErrors;
 	}
 
 // OTHER
@@ -49,16 +53,18 @@ class Schema
 	/**
 	 * Check all package definition
 	 *
-	 * @param	Package	$oPackage	package definition
+	 * @param	\ScaZF\Tool\Schema\Package	$oPackage	package definition
 	 * @return	void
 	 */
-	protected function checkPackage(Package $oPackage)
+	protected function checkPackage(\ScaZF\Tool\Schema\Package $oPackage)
 	{
 		$oVal = new Model();
 
 		foreach($oPackage->getModels() as $oModel)
 		{
-			if(!$oVal->isValid(array($oField)))
+			$this->scream('Validate model: '. $oModel->getName(), 1);
+
+			if(!$oVal->isValid(array($oModel)))
 			{
 				$this->addMsg(
 					$oPackage->getName(),
@@ -74,15 +80,17 @@ class Schema
 	/**
 	 * Check model definition
 	 *
-	 * @param	Model	$oModel	model definition
+	 * @param	\ScaZF\Tool\Schema\Model	$oModel	model definition
 	 * @return	void
 	 */
-	protected function checkModel(Model $oModel)
+	protected function checkModel(\ScaZF\Tool\Schema\Model $oModel)
 	{
 		$oVal = new Field();
 
 		foreach($oModel->getFields() as $oField)
 		{
+			$this->scream('Validate field: '. $oField->getName(), 2);
+
 			if(!$oVal->isValid(array($oField)))
 			{
 				$this->addMsg(
@@ -99,18 +107,20 @@ class Schema
 	 *
 	 * @return	void
 	 */
-	protected function addMsg($sModel, $sType, $sMessage)
+	protected function addMsg($sModel, $sType, $mMessage)
 	{
+		$mMessage = is_array($mMessage) ? $mMessage : array($mMessage);
+
 		if(!isset($this->aErrors[$sModel]))
 		{
 			$this->aErrors[$sModel] = array();
 		}
 
-		if(!isset($this->aErrors[$sModel][$sType))
+		if(!isset($this->aErrors[$sModel][$sType]))
 		{
 			$this->aErrors[$sModel][$sType] = array();
 		}
 
-		$this->aErrors[$sModel][$sType][] = $sMessage;
+		$this->aErrors[$sModel][$sType] = array_merge($this->aErrors[$sModel][$sType], $mMessage);
 	}
 }

@@ -5,7 +5,7 @@
  */
 namespace ScaZF\Tool\Schema;
 
-use ScaZF\Tool\Xml\Reader;
+use \ScaZF\Tool\Xml\Reader;
 
 /**
  * Schema manager - parses model descriptions, creates Packages and Model information objects
@@ -14,7 +14,8 @@ use ScaZF\Tool\Xml\Reader;
  */
 class Manager
 {
-	use ScaZF\Tool\Singleton;
+	use \ScaZF\Tool\Base\Singleton;
+	use \ScaZF\Tool\Base\Screamer;
 
 	/**
 	 * Array for loaded packages objects
@@ -38,9 +39,16 @@ class Manager
 	protected $sXsdPath = '.';
 
 	/**
+	 * Default Package
+	 *
+	 * @var	string
+	 */
+	protected $sDefaultPackage = '';
+
+	/**
 	 * Protected constructor
 	 *
-	 * @return	ScaZF\Tool\Schema\Manager
+	 * @return	\ScaZF\Tool\Schema\Manager
 	 */
 	protected function __construct() {}
 
@@ -61,13 +69,13 @@ class Manager
 	 * Return loaded package
 	 *
 	 * @param	string	$sName	package name
-	 * @return	ScaZF\Tool\Schema\Package
+	 * @return	\ScaZF\Tool\Schema\Package
 	 */
 	public function getPackage($sName)
 	{
-		if(isset($this->aPackages[$sName])) // package already loaded
+		if(!isset($this->aPackages[$sName])) // package already loaded
 		{
-			throw new Exception('Package "'. $sName .'"doesn\'t exists. Check USE attributes.');
+			throw new Exception('Package "'. $sName .'" doesn\'t exists. Check USE attributes.');
 		}
 
 		return $this->aPackages[$sName];
@@ -77,18 +85,34 @@ class Manager
 	 * Return loaded model
 	 *
 	 * @param	string	$sName	full model name (Package\Model)
-	 * @return	ScaZF\Tool\Schema\Model
+	 * @return	\ScaZF\Tool\Schema\Model
 	 */
 	public function getModel($sName)
 	{
+		if(strpos($sName, ':') === false)
+		{
+			$sName = $this->sDefaultPackage .':'. $sName;
+		}
+
 		list($sPackage, $sModel) = explode(':', $sName);
 
-		if(isset($this->aPackages[$sPackage])) // package already loaded
+		if(!isset($this->aPackages[$sPackage])) // package already loaded
 		{
 			throw new Exception('Package "'. $sPackage .'" doesn\'t exists. Check USE attributes.');
 		}
 
 		return $this->aPackages[$sPackage]->getModel($sModel);
+	}
+
+	/**
+	 * Set default package name
+	 *
+	 * @param	string	$sName	pacakge name
+	 * @return	void
+	 */
+	public function setDefaultPackage($sName)
+	{
+		$this->sDefaultPackage = $sName;
 	}
 
 	/**
@@ -104,37 +128,41 @@ class Manager
 			return ;
 		}
 
-	// check file
-		$sFilePath = self::sSchemaPath .'/'. basename($sName) .'.xml';
-		if(!file_exists($sFilePath))
-		{
-			throw new Exception('Description for package '. $sName . "doesn't exists");
-		}
+		$this->scream('Load "'. $sName .'" package');
 
-	// check XML Schema
-		if(!Reader::schemaValidate($sFilePath, self::$sXsdPath))
-		{
-			throw new Exception('Wrong description for package '. $sName);
-		}
-
-	// parse schema and create objects
-		$oReader = Reader();
-		$oReader->open($sFilePath);
-
-		$oPackage = $this->parsePackage($oReader);
-
-		$oReader->close();
-
-	// load other packages
-		if($oPackage->hasConnections())
-		{
-			foreach($oPackage->getConnections() as $sPackage)
+		// check file
+		$this->scream('Looking for file: '. basename($sName) .'.xml', 1);
+			$sFilePath = $this->sSchemaPath .'/'. basename($sName) .'.xml';
+			if(!file_exists($sFilePath))
 			{
-				$this->loadPackage($sPackage);
+				throw new Exception('Description for package "'. $sName . '" doesn\'t exists');
 			}
-		}
 
-		$this->aPackages[$sName] = $oPackage;
+		// check XML Schema
+		$this->scream('Validate XML structure', 1);
+			//if(($sError = Reader::schemaValidate($sFilePath, $this->sXsdPath)) !== false)
+			//{
+			//	throw new Exception('Wrong description for package '. $sName . ': ' . $sError);
+			//}
+
+		// parse schema and create objects
+			$oReader = new Reader();
+			$oReader->open($sFilePath);
+
+			$oPackage = $this->parsePackage($sName, $oReader);
+
+			$oReader->close();
+
+			$this->aPackages[$sName] = $oPackage;
+
+		// load other packages
+			if($oPackage->hasConnections())
+			{
+				foreach($oPackage->getConnections() as $sPackage)
+				{
+					$this->loadPackage($sPackage);
+				}
+			}
 	}
 
 	/**
@@ -145,19 +173,27 @@ class Manager
 	 */
 	protected function parsePackage($sPackage, &$oReader)
 	{
+		$this->scream('Start parsing', 1);
+
 		if(!$oReader->goToNode($sPackage))
 		{
 			throw new Exception('There is no package node in package "'. $sPackage . '" description');
 		}
 
+
 		$sName = $oReader->name;
-		$sUses = $oReader->getAttribute('uses', '');
+		$sUses = $oReader->getAttribute('use', '');
 
 		$aModels = array();
-		while($oReader->readNode())
+		if($oReader->readNode())
 		{
-			$aModels[] = $this->parseModel($sPackage, $oReader);
+			while($oReader->nodeType != \XMLReader::NONE)
+			{
+				$aModels[] = $this->parseModel($sPackage, $oReader);
+			}
 		}
+
+		$this->scream('End parsing', 1);
 
 		return 	new Package($sName, $aModels, $sUses);
 	}
@@ -171,6 +207,7 @@ class Manager
 	 */
 	protected function parseModel($sPackage, &$oReader)
 	{
+		$this->scream('Parse model: '. $oReader->name, 2);
 		return new Model(
 			$sPackage,
 			$oReader->name,
@@ -182,10 +219,10 @@ class Manager
 	/**
 	 * Parse XML description and create Field objects
 	 *
-	 * @param	ScaZF\Tool\Xml\Reader	$oReader	XMLReader object
+	 * @param	\ScaZF\Tool\Xml\Reader	$oReader	XMLReader object
 	 * @return	array
 	 */
-	protected function parseFields(XMLReader &$oReader)
+	protected function parseFields(&$oReader)
 	{
 		$aFields = array();
 		while(true)
@@ -196,6 +233,8 @@ class Manager
 			{
 				break;
 			}
+
+			$this->scream('Parse field: '. $oReader->getAttribute('name', 'name not found'), 3);
 
 			$aFields[] = new Field(
 				$oReader->getAttribute('name'),
