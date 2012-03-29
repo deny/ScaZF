@@ -75,7 +75,7 @@ class Field
 	public function __construct($sName, $sType, $sAccess, $sDefault, $sOptions, $sValidators)
 	{
 		$aMatches = null;
-		preg_match('/^([a-zA-Z:]+)(\([0-9, \*]+\))?/', $sType, $aMatches);
+		preg_match('/^([a-zA-Z:]+)(\([0-9a-zA-Z, \*]+\))?/', $sType, $aMatches);
 
 		$this->sName = $sName;
 		$this->sType = $aMatches[1];

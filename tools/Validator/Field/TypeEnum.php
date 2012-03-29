@@ -12,22 +12,24 @@ use ScaZF\Tool\Validator\ValidatorAbstract;
  *
  * @author	Daniel Kózka
  */
-class TypeString extends ValidatorAbstract
+class TypeEnum extends ValidatorAbstract
 {
 	// error types
-	const OPT_COUNT		= 'opt-count';
-	const WRONG_LENGTH	= 'wrong-legth';
+	const NO_VALUES = 'no-values';
+	const MULTI_VALUES = 'multi-values';
+	const WRONG_DEFAULT = 'wrong-default';
 
 	/**
 	 * Constructor
 	 *
-	 * @return	ScaZF\Tool\Validator\Field\TypeModel
+	 * @return	\ScaZF\Tool\Validator\Field\TypeModel
 	 */
 	public function __construct()
 	{
 		parent::__construct(1, array(
-			self::OPT_COUNT		=> 'String allow only one option (string length)',
-			self::WRONG_LENGTH 	=> 'Wrong string length definition: {0}'
+			self::NO_VALUES 	=> 'Enum values not found',
+			self::MULTI_VALUES	=> 'Multiply enum values find',
+			self::WRONG_DEFAULT	=> 'Unrecognized default value'
 		));
 	}
 
@@ -47,14 +49,20 @@ class TypeString extends ValidatorAbstract
 
 		$aAttribs = $oField->getTypeAttribs();
 
-		if(count($aAttribs) > 1)
+		if(empty($aAttribs))
 		{
-			$this->error(self::OPT_COUNT);
+			$this->error(self::NO_VALUES);
 		}
 
-		if(isset($aAttribs[0]) && !is_numeric($aAttribs[0]))
+		if(count($aAttribs) != count(array_unique($aAttribs)))
 		{
-			$this->error(self::WRONG_LENGTH, $aAttribs[0]);
+			$this->error(self::MULTI_VALUES);
+		}
+
+		$sDefault = $oField->getDefault();
+		if(!empty($sDefault) && !in_array($sDefault, $aAttribs))
+		{
+			$this->error(self::WRONG_DEFAULT);
 		}
 	}
 }

@@ -26,7 +26,7 @@ class TypeInt extends ValidatorAbstract
 	 */
 	public function __construct()
 	{
-		parent::__construct(null, array(
+		parent::__construct(1, array(
 			self::WRONG_MIN		=> 'Wrong int minimum definition: {0}',
 			self::WRONG_MAX		=> 'Wrong int maximum definition: {0}',
 			self::WRONG_MINMAX	=> 'Wrong int minimum and maximum definition: {0} < {1}'
@@ -41,22 +41,30 @@ class TypeInt extends ValidatorAbstract
 	 */
 	protected function validate(array $aValues)
 	{
-		if(isset($aValues[0]) && !is_numeric($aValues[0]))
+		$oField = $aValues[0];
+		if(!$oField instanceof \ScaZF\Tool\Schema\Field)
 		{
-			$this->error(self::WRONG_MIN, $aValues[0]);
+			throw \Exception('Validate value must be instance of Schema\Field');
 		}
 
-		if(isset($aValues[1]) && !is_numeric($aValues[1]))
+		$aAttribs = $oField->getTypeAttribs();
+
+		if(isset($aAttribs[0]) && !is_numeric($aAttribs[0]))
 		{
-			$this->error(self::WRONG_MAX, $aValues[1]);
+			$this->error(self::WRONG_MIN, $aAttribs[0]);
+		}
+
+		if(isset($aAttribs[1]) && !is_numeric($aAttribs[1]))
+		{
+			$this->error(self::WRONG_MAX, $aAttribs[1]);
 		}
 
 		if(!$this->hasErrors() &&
-		   !isset($aValues[0]) && !isset($aValues[0]) &&
-			((int) $aValues[0] >= (int) $aValues[1])
+		   !isset($aAttribs[0]) && !isset($aAttribs[0]) &&
+			((int) $aAttribs[0] >= (int) $aAttribs[1])
 		)
 		{
-			$this->error(self::WRONG_MINMAX, array($aValues[0], $aValues[1]));
+			$this->error(self::WRONG_MINMAX, array($aAttribs[0], $aAttribs[1]));
 		}
 	}
 }

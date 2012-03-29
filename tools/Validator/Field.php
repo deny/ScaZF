@@ -53,20 +53,23 @@ class Field extends ValidatorAbstract
 			case 'serialize':
 			case 'json':
 				break;
+			case 'enum':
+				$this->subValiadte(array($oField), new Field\TypeEnum());
+				break;
 			case 'int':
-				$this->subValiadte($oField->getTypeAttribs(), new Field\TypeInt());
+				$this->subValiadte(array($oField), new Field\TypeInt());
 				break;
 			case 'string':
-				$this->subValiadte($oField->getOptions(), new Field\TypeString());
+				$this->subValiadte(array($oField), new Field\TypeString());
 				break;
 			default: // check if is model definition
-				if(!$oField->isModelType()) // if no model type
+				if($oField->isModelType()) // if model type
 				{
-					$this->error(self::WRONG_TYPE, $oField->getType());
+					$this->subValiadte(array($oField), new Field\TypeModel());
 				}
 				else
 				{
-					$this->subValiadte(array($oField->getType(), $oField->getTypeAttribs()), new Field\TypeModel());
+					$this->error(self::WRONG_TYPE, $oField->getType());
 				}
 		}
 

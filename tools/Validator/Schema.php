@@ -67,7 +67,7 @@ class Schema
 			if(!$oVal->isValid(array($oModel)))
 			{
 				$this->addMsg(
-					$oPackage->getName(),
+					$oModel->getName(),
 					'general',
 					$oVal->getErrors()
 				);
