@@ -15,7 +15,7 @@ use \ScaZF\Tool\Xml\Reader;
 class Manager
 {
 	use \ScaZF\Tool\Base\Singleton;
-	use \ScaZF\Tool\Base\Screamer;
+	use \ScaZF\Tool\Base\Screamer\ClassTrait;
 
 	/**
 	 * Array for loaded packages objects

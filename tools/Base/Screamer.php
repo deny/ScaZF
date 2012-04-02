@@ -3,15 +3,17 @@
 /**
  * @namespace
  */
-namespace ScaZF\Tool\Base;
+namespace ScaZF\Tool\Base\Screamer;
 
 /**
  * Screamer Trait
  *
  * @author Daniel Kózka
  */
-trait Screamer
+class Screamer
 {
+	use \ScaZF\Tool\Base\Singleton;
+
 	/**
 	 * Screams text
 	 *
@@ -19,8 +21,32 @@ trait Screamer
 	 * @param	int			$iLevel	scream level
 	 * @return	void
 	 */
-	protected function scream($sText, $iLevel = 0)
+	public function scream($sText, $iLevel = 0)
 	{
 		echo str_repeat("\t", $iLevel) . $sText . "\n";
+	}
+
+	/**
+	 * Screams validation errors
+	 *
+	 * @param	\ScaZF\Tool\Validator\Schema 	$oValidator		schema validator
+	 * @return	void
+	 */
+	public function screamErrors(\ScaZF\Tool\Validator\Schema $oValidator)
+	{
+		$aErrors = $oValidator->getMessages();
+
+		echo "\n\nVALIDATION ERROR\n";
+
+		foreach($aErrors as $sModel => $aErr)
+		{
+			foreach($aErr as $sField => $aTmp)
+			{
+				foreach($aTmp as $sErr)
+				{
+					echo '['. $sModel . ($sField == 'general' ? '' : ':'.$sField). "]\t". $sErr. "\n";
+				}
+			}
+		}
 	}
 }

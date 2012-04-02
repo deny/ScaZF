@@ -12,7 +12,7 @@ namespace ScaZF\Tool\Validator;
  */
 class Schema
 {
-	use \ScaZF\Tool\Base\Screamer;
+	use \ScaZF\Tool\Base\Screamer\ClassTrait;
 
 	/**
 	 * Validation messages
