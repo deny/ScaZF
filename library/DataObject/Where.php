@@ -115,6 +115,16 @@ class Where
 	}
 
 	/**
+	 * Returns created SQL condition
+	 *
+	 * @return	string
+	 */
+	public function __toString()
+	{
+		return $this->getWhere();
+	}
+
+	/**
 	 * Parse the pased value to the part of SQL command
 	 *
 	 * @param	string|\Sca\DataObject\Where		$mWhere		where string or Where object

@@ -1,6 +1,6 @@
 <?php
 
-namespace Sca\DataObject
+namespace Sca\DataObject;
 
 /**
  * Exception class for DataObject Errors
@@ -9,6 +9,6 @@ namespace Sca\DataObject
  * @license		New BSD License
  * @author		Mateusz Juściński, Mateusz Kohut, Daniel Kózka
  */
-class Exception extends Exception
+class Exception extends \Exception
 {
 }

@@ -11,8 +11,6 @@ namespace Sca\DataObject;
  */
 abstract class Factory
 {
-	use \Sca\Singleton;
-	
 	/**
 	 * Instance of db adapter
 	 *
@@ -21,11 +19,11 @@ abstract class Factory
 	protected $oDb = null;
 
 	/**
-	 * Primary Key definition
+	 * Primary Key name/primary table
 	 *
-	 * @var array
+	 * @var	string
 	 */
-	private $aPrimaryKey = null;
+	private $sKey;
 
 	/**
 	 * Select object for paginator
@@ -42,26 +40,17 @@ abstract class Factory
 	private $oSelect = null;
 
 	/**
-	 * DB table name
+	 * Tables names
 	 *
-	 * @var string
+	 * @var	array
 	 */
-	private $sTableName = null;
+	private $aTables = array();
 
-	/**
-	 * Constructor, sets necessary data for the data object
-	 * Warning: In child class use this constructor!
-	 *
-	 * @param	string	$sTableName		name of DB table connected with model
-	 * @param	array	$aPrimaryKey	array with primay key fields
-	 * @return	Sca\DataObject\Factory
-	 */
-	public function __construct($sTableName, array $aPrimaryKey)
+	protected function init(array &$aTables = [])
 	{
 		$this->oDb = \Sca\Config::getInstance()->getDb();
-
-		$this->sTableName = $sTableName;
-		$this->aPrimaryKey = $aPrimaryKey;
+		$this->aTables = $aTables;
+		$this->sKey = end($aTables); // last table is main/key table
 	}
 
 // Factory method
@@ -91,7 +80,7 @@ abstract class Factory
 
 		$aDbRes = $oSelect->query()->fetchAll();
 
-		return $this->createList($aDbRes, $aOptions);
+		return $this->buildList($aDbRes, $aOptions);
 	}
 
 	/**
@@ -118,7 +107,7 @@ abstract class Factory
 
 		$aDbRes = $oSelect->query()->fetchAll();
 
-		return $this->createList($aDbRes, $aOptions);
+		return $this->buildList($aDbRes, $aOptions);
 	}
 
 	/**
@@ -128,18 +117,18 @@ abstract class Factory
 	 * @param	array	$aOptions	array with additional options
 	 * @return	Sca\DataObject\Unit
 	 */
-	public function getOne($mId, array $aOptions = [])
+	public function getOne($iId, array $aOptions = [])
 	{
 		$aDbRes = $this->getSelect('*', $aOptions)
-				->where($this->getWhereString($mId))
-				->limit(1)->query()->fetchAll();
+					->where($this->getWhereString($iId))
+					->limit(1)->query()->fetchAll();
 
 		if(empty($aDbRes))
 		{
-			throw new Sca\DataObject\Exception('The object with the specified ID does not exist');
+			throw new \Sca\DataObject\Exception('The object with the specified ID does not exist');
 		}
 
-		return $this->createObject($aDbRes[0], $aOptions);
+		return $this->buildObject($aDbRes[0], $aOptions);
 	}
 
 	/**
@@ -203,7 +192,7 @@ abstract class Factory
 			$oSelect->where($mWhere);
 		}
 
-		$oInterface = new Paginator\Interface($this, $oSelect, $aOptions);
+		$oInterface = new Paginator\PaginatorInterface($this, $oSelect, $aOptions);
 		$oInterface->setOrder($aOrder);
 
 		if($mWhere !== null)
@@ -218,16 +207,72 @@ abstract class Factory
 		return $oPaginator;
 	}
 
+// NEW ELEMENT CREATE
+
+	/**
+	 * Create new element
+	 *
+	 * @return	\Sca\DataObject\Element
+	 */
+	protected function createNewElement(array $aData)
+	{
+		// @todo dodanie do bazy
+		//$this->oDb->beginTransaction();
+		$aId = $aTmp = [];
+		foreach($aData as $sTable => $aFields)
+		{
+			$this->oDb->insert($sTable, $aFields + $aId);
+
+			if($sTable == $this->sKey)
+			{
+				$aId[$this->sKey .'_id'] = $this->oDb->lastInsertId($this->sKey, $this->sKey .'_id');
+			}
+			$aTmp = array_merge($aTmp, $aFields);
+		}
+		$this->oDb->commit();
+
+		$aTmp += $aId;
+
+		return $this->buildObject($aTmp);
+	}
+
+	abstract protected function prepareToCreate(array $aData);
+
+
+// NEW ELEMENT BUILD
+
+	/**
+	 * Create object from DB Data
+	 *
+	 * @param	array	$aRow	one row from database
+	 * @param	array	$aOptions	array with additional options
+	 * @return	\Sca\DataObject\Element
+	 */
+	final public function buildObject(array $aRow, array $aOptions = [])
+	{
+		$this->prepareToBuild($aRow, $aOptions);
+		return $this->buildElement($aRow);
+	}
+
 	/**
 	 * Create object from DB row
 	 *
 	 * @param	array	$aRow	one row from database
 	 * @param	array	$aOptions	array with additional options
-	 * @return	Sca\DataObject\Unit
+	 * @return	\Sca\DataObject\Element
 	 */
-	abstract public function createObject(array $aRow, array $aOptions = []);
+	abstract protected function buildElement(array &$aRow);
 
-// additional methods
+	/**
+	 * Prapare DB Data to object create
+	 *
+	 * @param	array	$aRow	one row from database
+	 * @param	array	$aOptions	array with additional options
+	 * @return	array
+	 */
+	protected function prepareToBuild(array &$aRow, array $aOptions = [])
+	{
+	}
 
 	/**
 	 * Creates an array of objects from the results returned by the database
@@ -236,37 +281,19 @@ abstract class Factory
 	 * @param	array	$aOptions	array with additional options
 	 * @return	array
 	 */
-	protected function createList(array &$aDbResult, array $aOptions = [])
+	protected function buildList(array &$aDbResult, array $aOptions = [])
 	{
 		$aResult = array();
 
 		foreach($aDbResult as $aRow)
 		{
-			$aResult[] = $this->createObject($aRow, $aOptions);
+			$aResult[] = $this->buildObject($aRow, $aOptions);
 		}
 
 		return $aResult;
 	}
 
-	/**
-	 * Returns DB table name
-	 *
-	 * @return	string
-	 */
-	final protected function getTableName()
-	{
-		return $this->sTableName;
-	}
-
-	/**
-	 * Returns an array with describe Primary Key
-	 *
-	 * @return	array
-	 */
-	final protected function getPrimaryKey()
-	{
-		return $this->aPrimaryKey;
-	}
+// ADDITIONAL METHODS
 
 	/**
 	 * Returns a Select object
@@ -279,14 +306,42 @@ abstract class Factory
 	{
 		if($this->oSelect === null)
 		{
-			$oSelect = new Zend_Db_Select($this->oDb);
-		}
-		else
-		{
-			$oSelect = clone $this->oSelect;
+			$this->oSelect = new \Zend_Db_Select($this->oDb);
+
+			$sLast = '';
+			$sKey = $this->sKey .'_id';
+
+			foreach($this->aTables as $iPos => $sTable)
+			{
+				if($iPos == 0)
+				{
+					$sLast = $sTable;
+					$this->oSelect->from($sTable);
+				}
+				else
+				{
+					$this->oSelect->join(
+						$sTable,
+						$sTable .'.'. $sKey .' = '. $sLast .'.'. $sKey
+					);
+				}
+			}
 		}
 
-		$oSelect->from($this->sTableName, $mFields);
+		$oSelect = clone $this->oSelect;
+
+		if($mFields != '*' && is_array($mFields))
+		{
+			$aTmp = array();
+			foreach($mFields as $sTable => $aFields)
+			{
+				foreach($aFields as $sField)
+				{
+					$aTmp[] = $sTable .'.'. $sField;
+				}
+			}
+			$oSelect->reset(\Zend_Db_Select::COLUMNS)->columns($aTmp);
+		}
 
 		return $oSelect;
 	}
@@ -300,55 +355,22 @@ abstract class Factory
 	protected function getCountSelect(array $aOptions = [])
 	{
 		return $this->getSelect()
-						->reset(Zend_Db_Select::COLUMNS)
-						->columns(new Zend_Db_Expr('COUNT(*)'));
+						->reset(\Zend_Db_Select::COLUMNS)
+						->columns(new \Zend_Db_Expr('COUNT(*)'));
 	}
 
 
 	/**
 	 * Returns SQL WHERE string created for the specified key fields
 	 *
-	 * @param	mixed	$mId	primary key values
+	 * @param	mixed	$mIds	primary key value/values
 	 * @return	string
 	 */
 	protected function getWhereString($mId)
 	{
-		$oWhere = new Sca\DataObject\Where();
-
-		if(count($this->aPrimaryKey) > 1)
-		{
-			// many fields in key
-			foreach($mId as $aKeys)
-			{
-				$oWhere2 = new Sca\DataObject\Where();
-
-				foreach($this->aPrimaryKey as $sField)
-				{
-					if(!isset($aKeys[$sField]))
-					{
-						throw new Sca\DataObject\Exception('No value for key part: ' . $sField);
-					}
-
-					// where for a single field
-					$sTmp = $this->getTableName() .'.'. $sField;
-					$sTmp .= is_array($aKeys[$sField]) ? ' IN (?)' : ' = ?';
-
-					$oWhere2->addAnd($sTmp, $aKeys[$sField]);
-				}
-
-				$oWhere->addOr($oWhere2);
-				unset($oWhere2);
-			}
-		}
-		else
-		{
-			// only one column is table key
-			$sTmp = $this->getTableName() .'.'. $this->aPrimaryKey[0];
-			$sTmp .= is_array($mId) ? ' IN (?)' : ' = ?';
-
-			$oWhere->addAnd($sTmp, $mId);
-		}
-
-		return $oWhere->getWhere();
+		return new Where(
+			$this->sKey .'.'. $this->sKey .'_id '. (is_array($mId) ? 'IN(?)' : '= ?'),
+			$mId
+		);
 	}
 }

@@ -9,8 +9,11 @@ namespace Sca\DataObject;
  * @license		New BSD License
  * @author		Mateusz Juściński, Mateusz Kohut, Daniel Kózka
  */
-abstract class Unit
+abstract class Element
 {
+
+// MODEL FIELDS
+
 	/**
 	 * Instance of db adapter
 	 *
@@ -19,18 +22,32 @@ abstract class Unit
 	protected $oDb;
 
 	/**
+	 * Primary Key
+	 *
+	 * @var	int
+	 */
+	private $iId;
+
+	/**
+	 * Primary Key name/primary table
+	 *
+	 * @var	string
+	 */
+	private $sKey;
+
+	/**
 	 * Tables names
 	 *
 	 * @var	array
 	 */
-	protected $aTables;
+	private $aTables = array();
 
 	/**
-	 * Primary Key definition
+	 * Which parts of object are modified
 	 *
-	 * @var array
+	 * @var	array
 	 */
-	private $aPrimaryKey = array();
+	private $aModified = array();
 
 	/**
 	 * The list of modified fields
@@ -46,27 +63,16 @@ abstract class Unit
 	 */
 	private $bDeleted = false;
 
-	/**
-	 * Which parts of object are modified
-	 *
-	 * @var	array
-	 */
-	private $aModified = array();
+// PUBLIC METHODS
 
 	/**
-	 * Constructor, sets necessary data for the data object
-	 * Warning: In child class use this constructor!
+	 * Return element id
 	 *
-	 * @param	array	$aPrimaryKey	array with primary key description (<field name> => <field value>) for each table
-	 * @return	\Sca\DataObject\Unit
+	 * @return	int
 	 */
-	public function __construct(array $aPrimaryKey)
+	public function getId()
 	{
-		$this->oDb = \Sca\Config::getInstance()->getDb();
-		$this->aPrimaryKey = $aPrimaryKey;
-		$this->aTables = array_keys($aPrimaryKey);
-		$this->aModified = array_fill_keys($this->aTables, false);
-		$this->aModifiedFields  = array_fill_keys($this->aTables, []);
+		return $this->iId;
 	}
 
 	/**
@@ -156,6 +162,26 @@ abstract class Unit
 		}
 	}
 
+// PROTECTED METHODS
+
+	/**
+	 * DataObject inialization
+	 * Warning: In child class constructor use this function!
+	 *
+	 * @return	\Sca\DataObject\Element
+	 */
+	protected function init(array &$aRow, array &$aTables = [])
+	{
+		$this->oDb = \Sca\Config::getInstance()->getDb();
+		$this->sKey = end($aTables); // last table is main/key table
+
+		$this->iId = $aRow[$this->sKey .'_id'];
+		$this->aTables = $aTables;
+		$this->aModified = array_fill_keys($this->aTables, false);
+		$this->aModifiedFields  = array_fill_keys($this->aTables, []);
+		return $this;
+	}
+
 	/**
 	 * Returns true, if object was modified
 	 *
@@ -163,7 +189,7 @@ abstract class Unit
 	 */
 	final protected function isModified()
 	{
-		return in_array(true, $this->bModified, true);
+		return in_array(true, $this->aModified, true);
 	}
 
 	/**
@@ -185,18 +211,11 @@ abstract class Unit
 	 *
 	 * @return string
 	 */
-	private function getWhereString()
+	final protected function getWhereString()
 	{
-		$oWhere = new Where();
-
-		foreach($this->aPrimaryValue as $sTable => $aKeys)
-		{
-			foreach($aKeys as $sField => $sValue)
-			{
-				$oWhere->addAnd($sTable .'.'. $sField . ' = ?', $sValue);
-			}
-		}
-
-		return $oWhere->getWhere();
+		return new Where(
+			$this->sKey .'.'. $this->sKey .'_id = ?',
+			$this->iId
+		);
 	}
 }

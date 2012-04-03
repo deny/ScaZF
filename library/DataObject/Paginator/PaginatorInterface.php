@@ -9,7 +9,7 @@ namespace	Sca\DataObject\Paginator;
  * @license		New BSD License
  * @author		Mateusz Juściński, Mateusz Kohut, Daniel Kózka
  */
-class Interface implements Zend_Paginator_Adapter_Interface
+class PaginatorInterface implements Zend_Paginator_Adapter_Interface
 {
 	/**
 	 * Array defines order
