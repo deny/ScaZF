@@ -260,17 +260,15 @@ abstract class Factory
 	final public function buildObject(array $aRow, array $aOptions = [])
 	{
 		$this->prepareToBuild($aRow, $aOptions);
-		return $this->buildElement($aRow);
+		return $this->buildElement()->init($aRow);
 	}
 
 	/**
-	 * Create object from DB row
+	 * Create element
 	 *
-	 * @param	array	$aRow	one row from database
-	 * @param	array	$aOptions	array with additional options
 	 * @return	\Sca\DataObject\Element
 	 */
-	abstract protected function buildElement(array &$aRow);
+	abstract protected function buildElement();
 
 	/**
 	 * Prapare DB Data to object create
