@@ -19,11 +19,11 @@ abstract class Factory
 	protected $oDb = null;
 
 	/**
-	 * Primary Key name/primary table
+	 * Main component info
 	 *
 	 * @var	string
 	 */
-	private $sKey;
+	private $aMain;
 
 	/**
 	 * Select object for paginator
@@ -40,17 +40,17 @@ abstract class Factory
 	private $oSelect = null;
 
 	/**
-	 * Tables names
+	 * Components
 	 *
 	 * @var	array
 	 */
-	private $aTables = array();
+	private $aComponents = array();
 
-	protected function init(array &$aTables = [])
+	protected function init(array &$aComponents = [])
 	{
 		$this->oDb = \Sca\Config::getInstance()->getDb();
-		$this->aTables = $aTables;
-		$this->sKey = end($aTables); // last table is main/key table
+		$this->aMain = array_pop($aComponents); // last component is main component
+		$this->aComponents = $aComponents;
 	}
 
 // Factory method
@@ -225,9 +225,9 @@ abstract class Factory
 			{
 				$this->oDb->insert($sTable, $aFields + $aId);
 
-				if($sTable == $this->sKey)
+				if($sTable == $this->aMain['table'])
 				{
-					$aId[$this->sKey .'_id'] = $this->oDb->lastInsertId($this->sKey, $this->sKey .'_id');
+					$aId[$this->aMain['key']] = $this->oDb->lastInsertId($this->aMain['table'], $this->aMain['key']);
 				}
 				$aTmp = array_merge($aTmp, $aFields);
 			}
@@ -316,24 +316,17 @@ abstract class Factory
 		if($this->oSelect === null)
 		{
 			$this->oSelect = new \Zend_Db_Select($this->oDb);
+			$this->oSelect->from($this->aMain['table'] .' AS '. $this->aMain['alias']);
+			$sLast = $this->aMain['alias'];
+			$sKey = $this->aMain['key'];
 
-			$sLast = '';
-			$sKey = $this->sKey .'_id';
-
-			foreach($this->aTables as $iPos => $sTable)
+			foreach($this->aComponents as $aInfo)
 			{
-				if($iPos == 0)
-				{
-					$sLast = $sTable;
-					$this->oSelect->from($sTable);
-				}
-				else
-				{
-					$this->oSelect->join(
-						$sTable,
-						$sTable .'.'. $sKey .' = '. $sLast .'.'. $sKey
-					);
-				}
+				$this->oSelect->join(
+					$aInfo['table'] .' AS '. $aInfo['alias'],
+					$aInfo['alias'] .'.'. $sKey .' = '. $sLast .'.'. $sKey
+				);
+				$sLast = $aInfo['alias'];
 			}
 		}
 
@@ -341,15 +334,7 @@ abstract class Factory
 
 		if($mFields != '*' && is_array($mFields))
 		{
-			$aTmp = array();
-			foreach($mFields as $sTable => $aFields)
-			{
-				foreach($aFields as $sField)
-				{
-					$aTmp[] = $sTable .'.'. $sField;
-				}
-			}
-			$oSelect->reset(\Zend_Db_Select::COLUMNS)->columns($aTmp);
+			$oSelect->reset(\Zend_Db_Select::COLUMNS)->columns($mFields);
 		}
 
 		return $oSelect;
@@ -378,7 +363,7 @@ abstract class Factory
 	protected function getWhereString($mId)
 	{
 		return new Where(
-			$this->sKey .'.'. $this->sKey .'_id '. (is_array($mId) ? 'IN(?)' : '= ?'),
+			$this->aMain['alias'] .'.'. $this->aMain['key'] . (is_array($mId) ? ' IN(?)' : ' = ?'),
 			$mId
 		);
 	}

@@ -29,18 +29,18 @@ abstract class Element
 	private $iId;
 
 	/**
-	 * Primary Key name/primary table
+	 * Main component info
 	 *
 	 * @var	string
 	 */
-	private $sKey;
+	private $aMain;
 
 	/**
-	 * Tables names
+	 * Components informations
 	 *
 	 * @var	array
 	 */
-	private $aTables = array();
+	private $aComponents = array();
 
 	/**
 	 * Which parts of object are modified
@@ -63,6 +63,13 @@ abstract class Element
 	 */
 	private $bDeleted = false;
 
+	/**
+	 * Is first save
+	 *
+	 * @var	string
+	 */
+	private $bNew = false;
+
 // PUBLIC METHODS
 
 	/**
@@ -70,7 +77,7 @@ abstract class Element
 	 *
 	 * @return	int
 	 */
-	public function getId()
+	final public function getId()
 	{
 		return $this->iId;
 	}
@@ -112,7 +119,7 @@ abstract class Element
 	 */
 	public function delete()
 	{
-		$this->oDb->delete($this->sKey, $this->getWhereString());
+		$this->oDb->delete($this->aMain['table'], $this->getWhereString());
 		$this->bDeleted = true;
 	}
 
@@ -129,7 +136,15 @@ abstract class Element
 			throw new \Sca\DataObject\Exception('Object is already deleted, you cannot save it.');
 		}
 
-		if($this->isModified())
+		if($this->bNew) // if new object - need insert
+		{
+			$sTable = $this->aMain['table'];
+			$this->oDb->insert($sTable, $this->aModifiedFields[$sTable]);
+			$this->aModifiedFields[$sTable] = array();
+			$this->aModified[$sTable] = false;
+			$this->bNew = false;
+		}
+		elseif($this->isModified()) // if oject modified
 		{
 			try
 			{
@@ -163,21 +178,34 @@ abstract class Element
 
 // PROTECTED METHODS
 
+	protected function initDefault(array &$aRow, array &$aComponents = [])
+	{
+		$this->init($aRow, $aComponents);
+
+		$this->bNew = true;
+		$this->aModifiedFields[$this->aMain['table']] = $aRow;
+	}
+
 	/**
 	 * DataObject inialization
 	 * Warning: In child class constructor use this function!
 	 *
 	 * @return	\Sca\DataObject\Element
 	 */
-	protected function init(array &$aRow, array &$aTables = [])
+	protected function init(array &$aRow, array &$aComponents = [])
 	{
 		$this->oDb = \Sca\Config::getInstance()->getDb();
-		$this->sKey = end($aTables); // last table is main/key table
+		$this->aMain = end($aComponents); // last element is main element
 
-		$this->iId = $aRow[$this->sKey .'_id'];
-		$this->aTables = $aTables;
-		$this->aModified = array_fill_keys($this->aTables, false);
-		$this->aModifiedFields  = array_fill_keys($this->aTables, []);
+		$this->iId = $aRow[$this->aMain['key']];
+		$this->aComponents = $aComponents;
+
+		foreach($this->aComponents as $aInfo)
+		{
+			$this->aModified[$aInfo['table']] = false;
+			$this->aModifiedFields[$aInfo['table']]  = array();
+		}
+
 		return $this;
 	}
 
@@ -213,10 +241,19 @@ abstract class Element
 	 */
 	final protected function getWhereString($sTable = null)
 	{
-		$sTable = empty($sTable) ? $this->sKey : $sTable;
+		$sTable = empty($sTable) ? $this->aMain['table'] : $sTable;
 		return new Where(
-			$sTable .'.'. $this->sKey .'_id = ?',
+			$sTable .'.'. $this->aMain['key'] .' = ?',
 			$this->iId
 		);
 	}
+
+// STATIC
+
+	/**
+	 * Return ifnormation about element (table, alias, key)
+	 *
+	 * @return	array
+	 */
+	public static abstract function info();
 }
