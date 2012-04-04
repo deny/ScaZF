@@ -112,16 +112,7 @@ abstract class Element
 	 */
 	public function delete()
 	{
-		foreach($this->aTables as $sTable)
-		{
-			$aTmp[] = $sTable .'.*';
-		}
-
-		$this->oDb->query(
-			'DELETE '. implode(', ', $aTmp) .' '.
-			'FROM '. implode(', ', $this->aTables) .' '.
-			'WHERE '. $this->getWhereString()
-		);
+		$this->oDb->delete($this->sKey, $this->getWhereString());
 		$this->bDeleted = true;
 	}
 
@@ -140,25 +131,33 @@ abstract class Element
 
 		if($this->isModified())
 		{
-			// check whether any data has been modified
-			$aTables = array();
-			$aData = array();
-			foreach($this->aModified as $sTable => $bModified)
+			try
 			{
-				if($bModified)
+				// check whether any data has been modified
+				$this->oDb->beginTransaction();
+
+				foreach($this->aModified as $sTable => $bModified)
 				{
-					$aTables[] = $sTable;
-					foreach($this->aModifiedFields[$sTable] as $sField => $sValue)
+					if($bModified)
 					{
-						$aData[$sTable .'.'. $sField] = $sValue;
+						$this->oDb->update(
+							$sTable,
+							$this->aModifiedFields[$sTable],
+							$this->getWhereString($sTable)
+						);
+
+						$this->aModifiedFields[$sTable] = array();
+						$this->aModified[$sTable] = false;
 					}
-
-					$this->aModifiedFields[$sTable] = array();
-					$this->aModified[$sTable] = false;
 				}
-			}
 
-			$this->oDb->update($aTables, $aData, $this->getWhereString());
+				$this->oDb->commit();
+			}
+			catch(Exception $oExc)
+			{
+				$this->oDb->rollBack();
+				throw $oExc;
+			}
 		}
 	}
 
@@ -209,12 +208,14 @@ abstract class Element
 	/**
 	 * Returns SQL WHERE code for Primary Key fields
 	 *
-	 * @return string
+	 * @param	string	$sTable	table name
+	 * @return	string
 	 */
-	final protected function getWhereString()
+	final protected function getWhereString($sTable = null)
 	{
+		$sTable = empty($sTable) ? $this->sKey : $sTable;
 		return new Where(
-			$this->sKey .'.'. $this->sKey .'_id = ?',
+			$sTable .'.'. $this->sKey .'_id = ?',
 			$this->iId
 		);
 	}

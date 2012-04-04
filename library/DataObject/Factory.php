@@ -216,20 +216,29 @@ abstract class Factory
 	 */
 	protected function createNewElement(array $aData)
 	{
-		// @todo dodanie do bazy
-		//$this->oDb->beginTransaction();
-		$aId = $aTmp = [];
-		foreach($aData as $sTable => $aFields)
+		try
 		{
-			$this->oDb->insert($sTable, $aFields + $aId);
+			$this->oDb->beginTransaction();
 
-			if($sTable == $this->sKey)
+			$aId = $aTmp = [];
+			foreach($aData as $sTable => $aFields)
 			{
-				$aId[$this->sKey .'_id'] = $this->oDb->lastInsertId($this->sKey, $this->sKey .'_id');
+				$this->oDb->insert($sTable, $aFields + $aId);
+
+				if($sTable == $this->sKey)
+				{
+					$aId[$this->sKey .'_id'] = $this->oDb->lastInsertId($this->sKey, $this->sKey .'_id');
+				}
+				$aTmp = array_merge($aTmp, $aFields);
 			}
-			$aTmp = array_merge($aTmp, $aFields);
+
+			$this->oDb->commit();
 		}
-		$this->oDb->commit();
+		catch(Exception $oExc)
+		{
+			$this->oDb->rollBack();
+			throw $oExc;
+		}
 
 		$aTmp += $aId;
 
