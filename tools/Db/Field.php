@@ -25,7 +25,7 @@ class Field
 	 * @param	\ScaZF\Tool\Schema\Model	$oModel	model definition
 	 * @return  \ScaZF\Tool\Db\Field
 	 */
-	public function __construct(\ScaZF\Tool\Schema\Model $oModel)
+	public function __construct(\ScaZF\Tool\Db\Wrapper\Model $oModel)
 	{
 		$this->oModel = $oModel;
 	}
@@ -57,7 +57,9 @@ class Field
 				}
 				break;
 			default: // model type
-				$oModel = \ScaZF\Tool\Schema\Manager::getInstance()->getModel($oField->getType());
+				$oModel = new \ScaZF\Tool\Db\Wrapper\Model(
+					\ScaZF\Tool\Schema\Manager::getInstance()->getModel($oField->getType())
+				);
 
 				// referenced model isn't component or one-to-many
 				if($oModel->getComponent() === null && empty($aAttr))

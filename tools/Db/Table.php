@@ -20,10 +20,19 @@ class Table
 	 */
 	public function toSql(\ScaZF\Tool\Schema\Model $oModel)
 	{
+		$oModel = new \ScaZF\Tool\Db\Wrapper\Model($oModel);
+
+		$aResult = [
+			'table' 		=> '',
+			'join'			=> '',
+			'foreignKeys'	=> ''
+		];
+
+		//
 		$sSql = 'CREATE TABLE `'. $oModel->getTableName() . "` (\n";
 
 		$aFields = [
-			"\t`". $oModel->getKey() . '` INT(10) UNSIGNED'. ($oModel->isPrimary() ? ' NOT NULL AUTO_INCREMENT' : '')
+			"\t`". $oModel->getKey() . '` INT(10) UNSIGNED'. ($oModel->hasPrimaryKey() ? ' NOT NULL AUTO_INCREMENT' : '')
 		];
 
 		$oFieldSql = new Field($oModel);
@@ -40,7 +49,7 @@ class Table
 
 		$sSql .= implode(",\n", $aFields);
 
-		if($oModel->isPrimary())
+		if($oModel->hasPrimaryKey())
 		{
 			$sSql .= ",\n\t". 'PRIMARY KEY('. $oModel->getKey() .')';
 		}

@@ -55,20 +55,6 @@ class Model
 	protected $sAlias;
 
 	/**
-	 * Sql table name
-	 *
-	 * @var	string
-	 */
-	protected $sTableName = null;
-
-	/**
-	 * Key definition
-	 *
-	 * @var string
-	 */
-	protected $sKey = null;
-
-	/**
 	 * Constructor
 	 *
 	 * @param	string		$sPackage	package name
@@ -88,6 +74,16 @@ class Model
 	}
 
 // GETTERS
+
+	/**
+	 * Return model alias
+	 *
+	 * @return	string
+	 */
+	public function getAlias()
+	{
+		return strtolower($this->sAlias);
+	}
 
 	/**
 	 * Return model full name (with package name)
@@ -149,83 +145,15 @@ class Model
 		return !empty($this->sExtends);
 	}
 
-// SQL
-
 	/**
-	 * Return table anme
+	 * Check if model is component
 	 *
-	 * @return	string
+	 * @return	bool
 	 */
-	public function getTableName()
+	public function isComponent()
 	{
-		if($this->sTableName === null)
-		{
-			if(empty($this->sExtends) && empty($this->sComponentOf))
-			{
-				$this->sTableName = $this->sName;
-			}
-			elseif(!empty($this->sExtends))
-			{
-				$oExtend = Manager::getInstance()->getModel($this->sExtends);
-				$this->sTableName = $oExtend->getTableName() . '_e_'. $this->sName;
-			}
-			else
-			{
-				$oComponent = Manager::getInstance()->getModel($this->sComponentOf);
-				$this->sTableName = $oComponent->getTableName() . '_c_'. $this->sName;
-			}
-
-			$this->sTableName = strtolower($this->sTableName);
-		}
-
-		return $this->sTableName;
+		return !empty($this->sComponentOf);
 	}
 
-	/**
-	 * Return model alias
-	 *
-	 * @return	string
-	 */
-	public function getAlias()
-	{
-		if($this->sAlias === null)
-		{
-			$aTmp = explode('_', $this->getTableName());
-			$this->sAlias = '';
-			foreach($aTmp as $sPart)
-			{
-				$this->sAlias .= $sPart[0];
-			}
-		}
 
-		return strtolower($this->sAlias);
-	}
-
-	/**
-	 * Return table key
-	 *
-	 * @return	string
-	 */
-	public function getKey()
-	{
-		if($this->sKey === null)
-		{
-			if(empty($this->sExtends))
-			{
-				$this->sKey = $this->getAlias() .'_id';
-			}
-			else
-			{
-				$oExtend = Manager::getInstance()->getModel($this->sExtends);
-				$this->sKey = $oExtend->getKey();
-			}
-		}
-
-		return $this->sKey;
-	}
-
-	public function isPrimary()
-	{
-		return empty($this->sExtends) && empty($this->sComponentOf);
-	}
 }
