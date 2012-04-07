@@ -212,6 +212,8 @@ class Manager
 			$sPackage,
 			$oReader->name,
 			$oReader->getAttribute('extends'),
+			$oReader->getAttribute('alias', null),
+			$oReader->getAttribute('componentof', null),
 			$this->parseFields($oReader)
 		);
 	}

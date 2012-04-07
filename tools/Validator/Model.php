@@ -16,6 +16,7 @@ use ScaZF\Tool\Schema\Manager;
 class Model extends ValidatorAbstract
 {
 	const WRONG_EXTEND = 'wrong-extend';
+	const WRONG_COMPONENT = 'wrong-component';
 
 	/**
 	 * Constructor
@@ -25,7 +26,8 @@ class Model extends ValidatorAbstract
 	public function __construct()
 	{
 		parent::__construct(1, array(
-			self::WRONG_EXTEND => 'Unrecognized extended model: {0}'
+			self::WRONG_EXTEND 		=> 'Unrecognized extended model: {0}',
+			self::WRONG_COMPONENT	=> 'Cannot find component class: {0}'
 		));
 	}
 
@@ -53,6 +55,18 @@ class Model extends ValidatorAbstract
 		catch(\ScaZF\Tool\Schema\Exception $oExc) // if ref model doesn't exist
 		{
 			$this->error(self::WRONG_EXTEND, $oModel->getExtends());
+		}
+
+		try
+		{
+			if($oModel->getComponent() != null)
+			{
+				$oComponent = Manager::getInstance()->getModel($oModel->getComponent());
+			}
+		}
+		catch(\ScaZF\Tool\Schema\Exception $oExc) // if ref model doesn't exist
+		{
+			$this->error(self::WRONG_COMPONENT, $oModel->getComponent());
 		}
 	}
 }

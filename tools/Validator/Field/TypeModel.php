@@ -17,7 +17,6 @@ class TypeModel extends ValidatorAbstract
 {
 	// error types
 	const NO_MODEL 	= 'no-model';
-	const NO_OPT	= 'no-opt';
 	const WRONG_OPT = 'wrong-opt';
 	const OPT_COUNT	= 'opt-count';
 
@@ -30,7 +29,6 @@ class TypeModel extends ValidatorAbstract
 	{
 		parent::__construct(1, array(
 			self::NO_MODEL		=> 'Can\'t find "{0}" model. Check package "use" attribute.',
-			self::NO_OPT 		=> 'Can\'t find type options - use (0), (1) or (*).',
 			self::WRONG_OPT		=> 'Wrong type options "{0}". use (0), (1) or (*).',
 			self::OPT_COUNT 	=> 'Wrong type options count ({0}) - only one option allowed'
 		));
@@ -55,15 +53,11 @@ class TypeModel extends ValidatorAbstract
 			$oModel = Manager::getInstance()->getModel($oField->getType());
 			$aAttribs = $oField->getTypeAttribs();
 
-			if(empty($aAttribs))
-			{
-				$this->error(self::NO_OPT);
-			}
-			else if(count($aAttribs) > 1)
+			if(count($aAttribs) > 1)
 			{
 				$this->error(self::OPT_COUNT, count($aAttribs));
 			}
-			else if(!in_array($aAttribs[0], array('0', '1', '*')))
+			else if(!empty($aAttribs) && !in_array($aAttribs[0], array('*')))
 			{
 				$this->error(self::WRONG_OPT, $aAttribs[0]);
 			}
