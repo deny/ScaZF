@@ -17,30 +17,6 @@ trait {*model-name*}
 
 	{*initialization*}
 
-	public function init(array &$aRow, array &$aComponents = [])
-	{
-		$this->sName = $aRow['u_name'];
-		$this->sSurname = $aRow['u_surname'];
-
-		$aComponents[] = self::info();
-		parent::init($aRow, $aComponents);
-
-
-		if(isset($aRow['_settings']))
-		{
-			$this->oSettings = $aRow['_settings'] ?
-									$aRow['_settings'] :
-									(new \Model\Users\Settings())->initDefault($this);
-		}
-
-		if(isset($aRow['_friends']))
-		{
-			$this->aFriends = $aRow['_friends'];
-		}
-
-		return $this;
-	}
-
 // GETTERS
 
 	{*getters*}
@@ -213,18 +189,18 @@ trait {*model-name*}
 			'{*db-field-name*}' => $this->{*p-field-name*}
 {@end=init-field-component@}
 {@begin=init-component@}
-		if(isset($aRow['{*preload*}']))
+		if(isset($aRow['_{*preload*}']))
 		{
-			$this->{*p-field-name*} = $aRow['{*preload*}'] ?
-									$aRow['{*preload*}'] :
+			$this->{*p-field-name*} = $aRow['_{*preload*}'] ?
+									$aRow['_{*preload*}'] :
 									(new {*component-type*}())->initDefault($this);
 		}
 
 {@end=init-component@}
 {@begin=init-many@}
-		if(isset($aRow['{*preload*}']))
+		if(isset($aRow['_{*preload*}']))
 		{
-			$this->{*p-field-name*} = $aRow['{*preload*}'];
+			$this->{*p-field-name*} = $aRow['_{*preload*}'];
 		}
 
 {@end=init-many@}
