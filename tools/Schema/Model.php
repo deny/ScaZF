@@ -82,7 +82,7 @@ class Model
 	 */
 	public function getAlias()
 	{
-		return strtolower($this->sAlias);
+		return $this->sAlias;
 	}
 
 	/**
@@ -154,6 +154,4 @@ class Model
 	{
 		return !empty($this->sComponentOf);
 	}
-
-
 }
