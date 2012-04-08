@@ -3,7 +3,7 @@
 /**
  * @namespace
  */
-namespace ScaZF\Tool\Db\Wrapper;
+namespace ScaZF\Tool\Wrapper;
 
 /**
  * Field wrapper
@@ -43,11 +43,11 @@ class Field
 	/**
 	 * Constructor
 	 *
-	 * @param	\ScaZF\Tool\Db\Wrapper\Model	$oModel		model definition
-	 * @param	\ScaZF\Tool\Schema\Field		$oField		field definition
-	 * @return	\ScaZF\Tool\Db\Wrapper\Field
+	 * @param	\ScaZF\Tool\Wrapper\Model	$oModel		model definition
+	 * @param	\ScaZF\Tool\Schema\Field	$oField		field definition
+	 * @return	\ScaZF\Tool\Wrapper\Field
 	 */
-	public function __construct(\ScaZF\Tool\Db\Wrapper\Model $oModel, \ScaZF\Tool\Schema\Field $oField)
+	public function __construct(\ScaZF\Tool\Wrapper\Model $oModel, \ScaZF\Tool\Schema\Field $oField)
 	{
 		$this->oModel = $oModel;
 		$this->oField = $oField;
@@ -89,7 +89,7 @@ class Field
 			];
 
 		// define FK
-			$oTmp = new \ScaZF\Tool\Db\Wrapper\Model(
+			$oTmp = new \ScaZF\Tool\Wrapper\Model(
 				\ScaZF\Tool\Schema\Manager::getInstance()->getModel($this->getType())
 			);
 
@@ -123,7 +123,7 @@ class Field
 					$aResult['field']['other'] = '';
 					break;
 				default: // model type
-					$oTmp = new \ScaZF\Tool\Db\Wrapper\Model(
+					$oTmp = new \ScaZF\Tool\Wrapper\Model(
 						\ScaZF\Tool\Schema\Manager::getInstance()->getModel($this->getType())
 					);
 
@@ -167,6 +167,11 @@ class Field
 		return $this->bComponent;
 	}
 
+	public function getModelType()
+	{
+		return '\\'. $this->oModel->getPackage() .'\\'. $this->getType();
+	}
+
 	/**
 	* Field methods call
 	*
@@ -193,7 +198,7 @@ class Field
 		{
 			if($this->oField->isModelType()) // model typ field
 			{
-				$oModel = new \ScaZF\Tool\Db\Wrapper\Model(
+				$oModel = new \ScaZF\Tool\Wrapper\Model(
 					\ScaZF\Tool\Schema\Manager::getInstance()->getModel($this->oField->getType())
 				);
 

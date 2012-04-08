@@ -11,22 +11,27 @@ namespace {*namespace*};
  */
 trait {*model-name*}
 {
-	{*consts*}
+{*consts*}
 
+// FIELDS
+
+{*fields*}
 // INITIALIZATION
 
-	{*initialization*}
-
+{*initialization*}
 // GETTERS
 
-	{*getters*}
-
+{*getters*}
 // SETTERS
 
-	{*setters*}
-
+{*setters*}
 // STATIC
 
+	/**
+	 * Return model DB information
+	 *
+	 * @return	array
+	 */
 	public static function info()
 	{
 		return [
@@ -51,7 +56,7 @@ trait {*model-name*}
 	/**
 	 * @return	{*field-type*}
 	 */
-	public function get{*field-name*}()
+	{*access*} function get{*field-name*}()
 	{
 		return $this->{*p-field-name*};
 	}
@@ -61,7 +66,7 @@ trait {*model-name*}
 	/**
 	 * @return	{*field-type*}
 	 */
-	public function get{*field-name*}()
+	{*access*} function get{*field-name*}()
 	{
 		if(!isset($this->{*p-field-name*}))
 		{
@@ -69,7 +74,7 @@ trait {*model-name*}
 			{
 				$this->{*p-field-name*} = {*field-type*}Factory::getInstance()->getOne($this->getId());
 			}
-			catch(\Sca\DataObject\Exception $oExc) // no settings - create default setting object
+			catch(\Sca\DataObject\Exception $oExc) // no data - create default object
 			{
 				$this->{*p-field-name*} = (new {*field-type*}())->initDefault($this);
 			}
@@ -83,7 +88,7 @@ trait {*model-name*}
 	/**
 	 * @return	{*field-type*}
 	 */
-	public function get{*field-name*}()
+	{*access*} function get{*field-name*}()
 	{
 		if(!isset($this->{*p-field-name*}))
 		{
@@ -98,7 +103,7 @@ trait {*model-name*}
 	/**
 	 * @return	array
 	 */
-	public function get{*field-name*}()
+	{*access*} function get{*field-name*}()
 	{
 		if(!isset($this->{*p-field-name*}))
 		{
@@ -114,7 +119,7 @@ trait {*model-name*}
 	 * @param	{*field-type*}	$mValue		new value
 	 * @return	void
 	 */
-	public function set{*field-name*}($mValue)
+	{*access*} function set{*field-name*}($mValue)
 	{
 		$this->{*p-field-name*} = $mValue;
 		$this->setDataValue(self::info()['table'], '{*db-field-name*}', $mValue);
@@ -122,6 +127,20 @@ trait {*model-name*}
 	}
 
 {@end=simple-setter@}
+{@begin=obj-setter@}
+	/**
+	 * @param	{*field-type*}	$mValue		new value
+	 * @return	void
+	 */
+	{*access*} function set{*field-name*}($mValue)
+	{
+		$this->{*p-field-name*} = $mValue;
+		$this->{*o-field-name*} = null;
+		$this->setDataValue(self::info()['table'], '{*db-field-name*}', $mValue);
+		return $this;
+	}
+
+{@end=obj-setter@}
 {@begin=main-init@}
 	/**
 	 * Model initialziation

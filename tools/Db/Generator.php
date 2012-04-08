@@ -26,7 +26,7 @@ class Generator
 
 		foreach($oPackage->getModels() as $oModel)
 		{
-			$oModel = new \ScaZF\Tool\Db\Wrapper\Model($oModel);
+			$oModel = new \ScaZF\Tool\Wrapper\Model($oModel);
 
 			$aDesc= $oModel->getDescription();
 

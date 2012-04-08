@@ -3,7 +3,7 @@
 /**
  * @namespace
  */
-namespace ScaZF\Tool\Db\Wrapper;
+namespace ScaZF\Tool\Wrapper;
 
 /**
  * Model wrapper
@@ -44,7 +44,7 @@ class Model
 	 * Constructor
 	 *
 	 * @param	\ScaZF\Tool\Schema\Model	$oModel		model definition
-	 * @return	\ScaZF\Tool\Db\Wrapper\Model
+	 * @return	\ScaZF\Tool\Wrapper\Model
 	 */
 	public function __construct(\ScaZF\Tool\Schema\Model $oModel)
 	{
@@ -92,7 +92,7 @@ class Model
 		}
 		elseif($this->isComponent()) // if model is component
 		{
-			$oTmp = new \ScaZF\Tool\Db\Wrapper\Model(
+			$oTmp = new \ScaZF\Tool\Wrapper\Model(
 				\ScaZF\Tool\Schema\Manager::getInstance()->getModel($this->getComponent())
 			);
 
@@ -106,7 +106,7 @@ class Model
 		// get description for all fields
 		foreach($this->getFields() as $oField)
 		{
-			$oField = new \ScaZF\Tool\Db\Wrapper\Field($this, $oField);
+			$oField = new \ScaZF\Tool\Wrapper\Field($this, $oField);
 			$aDesc = $oField->getDescription();
 
 		// if description for field extists

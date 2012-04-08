@@ -86,6 +86,16 @@ class Model
 	}
 
 	/**
+	 * Return package name
+	 *
+	 * @return	string
+	 */
+	public function getPackage()
+	{
+		return $this->sPackage;
+	}
+
+	/**
 	 * Return model full name (with package name)
 	 *
 	 * @return	string
