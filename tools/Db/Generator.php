@@ -7,6 +7,8 @@ namespace ScaZf\Tool\Db;
 
 /**
  * Sql generator for Schema package
+ *
+ * @author	Daniel Kózka
  */
 class Generator
 {
