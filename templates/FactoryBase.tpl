@@ -125,7 +125,7 @@ trait {*model-name*}Factory
 	 *@param	mixed	$mId	owner id/ids
 	 * @return	array
 	 */
-	public function get{*func-name*}$mUserId)
+	public function get{*model-name*}{*field-name*}($mId)
 	{
 		if(empty($mId))
 		{
@@ -171,7 +171,6 @@ trait {*model-name*}Factory
 		{
 			$aResult = $this->buildList($aDbRes);
 		}
-
 
 		return $aResult;
 	}

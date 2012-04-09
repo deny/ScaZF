@@ -12,7 +12,19 @@ namespace ScaZF\Tool\Model;
  */
 class Generator
 {
+	/**
+	 * Global namespace for models
+	 *
+	 * @var	string
+	 */
 	protected $sGlobalNamespace = '\\Model';
+
+	/**
+	 * Infomration about one-to-many connections
+	 *
+	 * @var	array
+	 */
+	protected $aMultiInfo = [];
 
 	/**
 	 * Return PHP base model
@@ -187,6 +199,7 @@ class Generator
 	public function getFactoryBase(\ScaZF\Tool\Schema\Model $oModel)
 	{
 		$oTpl = \ScaZF\Tool\Model\Template::getTemplate('FactoryBase');
+		$this->loadOneToMany($oModel->getPackage());
 		$oModel = new \ScaZF\Tool\Wrapper\Model($oModel);
 		$sModelType = $this->sGlobalNamespace .'\\'. $oModel->getPackage() . '\\'. $oModel->getName();
 
@@ -281,6 +294,34 @@ class Generator
 		}
 
 	// factory methods
+		if(isset($this->aMultiInfo[$oModel->getName()]))
+		{
+			foreach($this->aMultiInfo[$oModel->getName()] as $aInfo)
+			{
+				$oOther = new \ScaZF\Tool\Wrapper\Model(
+					\ScaZF\Tool\Schema\Manager::getInstance()->getModel($aInfo['model'])
+				);
+				$sOtherType = $this->sGlobalNamespace . '\\'. $oOther->getPackage() . '\\'. $oOther->getName();
+
+				$sTechTable = $oOther->getTableName() .'_j_'. strtolower($aInfo['field']);
+				$aTmp = explode('_', $sTechTable);
+				$sAlias = '';
+				foreach($aTmp as $sPart)
+				{
+					$sAlias .= $sPart[0];
+				}
+
+				$aFactory['factory'] .= $oTpl->getSubTemplate('get-multi',[
+					'model-name'	=> $aInfo['model'],
+					'field-name'	=> ucfirst($aInfo['field']),
+					'current-type'	=> $sModelType,
+					'other-type'	=> $sOtherType,
+					'db-tech-table'	=> $sTechTable,
+					'db-tech-alias'	=> $sAlias,
+					'db-tech-key'	=> $sAlias . '_id'
+				]);
+			}
+		}
 
 	// getSelect &&  buildList && prepareToBuild
 		$sGetSelect = $sBuildList = $sPrepToBuild = '';
@@ -360,9 +401,17 @@ class Generator
 			]);
 		}
 
-		echo $oTpl->getSubTemplate('main', $aFactory);
+		return $oTpl->getSubTemplate('main', $aFactory);
 	}
 
+// OTHER METHODS
+
+	/**
+	 * Calculate field name
+	 *
+	 * @param	\ScaZF\Tool\Wrapper\Field $oField	field description
+	 * @return	string
+	 */
 	protected function getFieldName(\ScaZF\Tool\Wrapper\Field $oField)
 	{
 		$aTmp = explode('_', $oField->getName());
@@ -374,6 +423,12 @@ class Generator
 		return implode('', $aTmp);
 	}
 
+	/**
+	 * Calculate field type
+	 *
+	 * @param	\ScaZF\Tool\Wrapper\Field $oField	field description
+	 * @return	string
+	 */
 	protected function getFieldType(\ScaZF\Tool\Wrapper\Field $oField)
 	{
 		if($oField->isModelType())
@@ -390,6 +445,13 @@ class Generator
 		}
 	}
 
+	/**
+	 * Calculate field prefixed-name
+	 *
+	 * @param	\ScaZF\Tool\Wrapper\Field 	$oField		field description
+	 * @param	string						$sPrefix	optional field prefix
+	 * @return	string
+	 */
 	protected function getFieldPName(\ScaZF\Tool\Wrapper\Field $oField, $sPrefix = null)
 	{
 		$sName = $this->getFieldName($oField);
@@ -415,5 +477,37 @@ class Generator
 		}
 
 		return '';
+	}
+
+	/**
+	 * Load information about models connected one-to-many with package
+	 *
+	 * @param	strign	$sPackage	package name
+	 * @return	array
+	 */
+	protected function loadOneToMany($sPackage)
+	{
+		$oPackage = \ScaZF\Tool\Schema\Manager::getInstance()->getPackage($sPackage);
+
+		foreach($oPackage->getModels() as $oModel)
+		{
+			$oModel = new \ScaZF\Tool\Wrapper\Model($oModel);
+			foreach($oModel->getFields() as $oField)
+			{
+				$oField = new \ScaZF\Tool\Wrapper\Field($oModel, $oField);
+				if($oField->isModelType() && $oField->isOneToMany())
+				{
+					if(!isset($this->aMultiInfo[$oField->getType()]))
+					{
+						$this->aMultiInfo[$oField->getType()] = [];
+					}
+
+					$this->aMultiInfo[$oField->getType()][] = [
+						'model'	=> $oModel->getName(),
+						'field'	=> $oField->getName()
+					];
+				}
+			}
+		}
 	}
 }
