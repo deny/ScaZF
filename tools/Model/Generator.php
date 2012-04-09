@@ -175,8 +175,192 @@ class Generator
 
 		}
 
-		echo $oTpl->getSubTemplate('main', $aModel);
-		//var_dump($aModel);
+		return $oTpl->getSubTemplate('main', $aModel);
+	}
+
+	/**
+	 * Return PHP base factory
+	 *
+	 * @param	\ScaZF\Tool\Wrapper\Model $oModel	model description
+	 * @return	string
+	 */
+	public function getFactoryBase(\ScaZF\Tool\Schema\Model $oModel)
+	{
+		$oTpl = \ScaZF\Tool\Model\Template::getTemplate('FactoryBase');
+		$oModel = new \ScaZF\Tool\Wrapper\Model($oModel);
+		$sModelType = $this->sGlobalNamespace .'\\'. $oModel->getPackage() . '\\'. $oModel->getName();
+
+	// prepare main definition
+		$aFactory = [
+			'namespace'		=> $this->sGlobalNamespace .'\\'. $oModel->getPackage(),
+			'model-name'	=> $oModel->getName(),
+			'model-type'	=> $sModelType,
+			'create'		=> '',
+			'prepare-create'=> '',
+			'factory'		=> '',
+			'get-select'	=> '',
+			'build-list'	=> '',
+			'prepare-build'	=> ''
+		];
+
+	// create
+		if(!$oModel->isComponent())
+		{
+			$sComment = '';
+			$aFields = $aDbFields = [];
+			$iPosition = 0;
+
+			foreach($oModel->getAllFields() as $oField)
+			{
+				$oField = new \ScaZF\Tool\Wrapper\Field($oModel, $oField);
+				$aAllowIds = $oModel->getFieldsIds(); // ID's of fields belongs only to current model
+
+				if($oField->isModelType())
+				{
+					if(!$oField->isOneToMany() && !$oField->isComponent())
+					{
+						$sComment .= $oTpl->getSubTemplate('create-comment', [
+							'field-type'	=> 'int',
+							'p-field-name'	=> $this->getFieldPName($oField, 'i') . 'Id'
+						]);
+
+						$aFields[] = '$'. $this->getFieldPName($oField, 'i'). 'Id';
+
+						if(in_array($oField->getId(), $aAllowIds))
+						{
+							$sTmp = $oTpl->getSubTemplate('prepare-create-field', [
+								'db-field'		=> $oModel->getAlias() . '_'. $oField->getName(),
+								'db-field-nr'	=> $iPosition
+							]);
+							$aDbFields[] = rtrim($sTmp, "\n");
+						}
+
+						$iPosition++;
+					}
+				}
+				else
+				{
+					$sComment .= $oTpl->getSubTemplate('create-comment', [
+						'field-type'	=> $this->getFieldType($oField),
+						'p-field-name'	=> $this->getFieldPName($oField)
+					]);
+
+					$aFields[] = '$'. $this->getFieldPName($oField);
+
+					if(in_array($oField->getId(), $aAllowIds))
+					{
+						$sTmp = $oTpl->getSubTemplate('prepare-create-field', [
+							'db-field'		=> $oModel->getAlias() . '_'. $oField->getName(),
+							'db-field-nr'	=> $iPosition
+						]);
+						$aDbFields[] = rtrim($sTmp, "\n");
+					}
+
+					$iPosition++;
+				}
+			}
+
+			$aFactory['create'] = $oTpl->getSubTemplate('create', [
+				'fields-comments'	=> rtrim($sComment, "\n"),
+				'fields-list'		=> implode(', ', $aFields),
+				'model-type'		=> $sModelType
+			]);
+
+		// prepare to create
+			$aFactory['prepare-create'] = $oTpl->getSubTemplate(
+				$oModel->hasExtends() ? 'prepare-create-extend' : 'prepare-create-simple',
+				[
+					'db-table'	=> $oModel->getTableName(),
+					'db-fields'	=> implode(",\n", $aDbFields)
+				]
+			);
+		}
+		else
+		{
+			$aFactory['prepare-create'] = $oTpl->getSubTemplate('prepare-create-component', []);
+		}
+
+	// factory methods
+
+	// getSelect &&  buildList && prepareToBuild
+		$sGetSelect = $sBuildList = $sPrepToBuild = '';
+		foreach($oModel->getFields() as $oField)
+		{
+			$oField = new \ScaZF\Tool\Wrapper\Field($oModel, $oField);
+
+			if($oField->isModelType())
+			{
+				$oOther = new \ScaZF\Tool\Wrapper\Model(
+					\ScaZF\Tool\Schema\Manager::getInstance()->getModel($oField->getType())
+				);
+				$sOtherType = $this->sGlobalNamespace . '\\'. $oOther->getPackage() . '\\'. $oOther->getName();
+
+				if($oField->isComponent())
+				{
+					$sGetSelect .= $oTpl->getSubTemplate('get-select-component',[
+						'preload'		=> strtolower($oField->getName()),
+						'current-type'	=> $sModelType,
+						'other-type'	=> $sOtherType
+					]);
+
+					$sPrepToBuild .= $oTpl->getSubTemplate('prepare-build-component',[
+						'preload'		=> strtolower($oField->getName()),
+						'other-type'	=> $sOtherType
+					]);
+				}
+				elseif($oField->isOneToMany())
+				{
+					$oOther = new \ScaZF\Tool\Wrapper\Model(
+						\ScaZF\Tool\Schema\Manager::getInstance()->getModel($oField->getType())
+					);
+					$sOtherType = $this->sGlobalNamespace . '\\'. $oOther->getPackage() . '\\'. $oOther->getName();
+
+					$sBuildList .= $oTpl->getSubTemplate('build-list-many',[
+						'preload'		=> strtolower($oField->getName()),
+						'current-type'	=> $sModelType,
+						'other-type'	=> $sOtherType,
+						'model-name'	=> $oModel->getName(),
+						'field-name'	=> $this->getFieldName($oField)
+					]);
+				}
+				else
+				{
+					$sGetSelect .= $oTpl->getSubTemplate('get-select-preload',[
+						'preload'		=> strtolower($oField->getName()),
+						'current-type'	=> $sModelType,
+						'other-type'	=> $sOtherType
+					]);
+
+					$sPrepToBuild .= $oTpl->getSubTemplate('prepare-build-model',[
+						'preload'		=> strtolower($oField->getName()),
+						'other-type'	=> $sOtherType
+					]);
+				}
+			}
+		}
+
+		if(!empty($sGetSelect))
+		{
+			$aFactory['get-select'] = $oTpl->getSubTemplate('get-select',[
+				'field-preload' => $sGetSelect
+			]);
+		}
+
+		if(!empty($sBuildList))
+		{
+			$aFactory['build-list'] = $oTpl->getSubTemplate('build-list', [
+				'field-preload' => $sBuildList
+			]);
+		}
+
+		if(!empty($sPrepToBuild))
+		{
+			$aFactory['prepare-build'] = $oTpl->getSubTemplate('prepare-build', [
+				'field-preload' => $sPrepToBuild
+			]);
+		}
+
+		echo $oTpl->getSubTemplate('main', $aFactory);
 	}
 
 	protected function getFieldName(\ScaZF\Tool\Wrapper\Field $oField)

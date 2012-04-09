@@ -57,7 +57,6 @@ class Template
 			$iEnd = strpos($sTemplate, '{@end='. $sTag .'@}', $iStart); // find section end
 
 			$this->aSubTemplates[$sTag] =  ltrim(substr($sTemplate, $iTmp + 2, $iEnd - $iTmp - 2), "\n");
-
 			$iEnd += 5;
 		}
 	}

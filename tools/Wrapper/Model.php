@@ -180,6 +180,44 @@ class Model
 	}
 
 	/**
+	 * Return fields ids
+	 *
+	 * @return	array
+	 */
+	public function getFieldsIds()
+	{
+		$aResult = [];
+		foreach($this->getFields() as $oField)
+		{
+			$oField = new \ScaZF\Tool\Wrapper\Field($this, $oField);
+			$aResult[] = $oField->getId();
+		}
+		return $aResult;
+	}
+
+	/**
+	 * Return all fields (first from parent, then additional field)
+	 *
+	 * @return	array
+	 */
+	public function getAllFields()
+	{
+		$aResult = [];
+		if($this->hasExtends())
+		{
+			$oParent = new self(
+				\ScaZF\Tool\Schema\Manager::getInstance()->getModel($this->getExtends())
+			);
+
+			$aResult = $oParent->getAllFields();
+		}
+
+		$aResult = array_merge($aResult, $this->getFields());
+
+		return $aResult;
+	}
+
+	/**
 	 * Calcualte model alias
 	 *
 	 * @return	string
@@ -245,6 +283,72 @@ class Model
 	public function hasPrimaryKey()
 	{
 		return !$this->oModel->hasExtends() && !$this->oModel->isComponent();
+	}
+
+	/**
+	 * Check if model has component field
+	 *
+	 * @return	bool
+	 */
+	public function hasComponentField()
+	{
+		$bResult = false;
+		foreach($this->getFields() as $oField)
+		{
+			$oField = new \ScaZF\Tool\Wrapper\Field($this, $oField);
+
+			if($oField->isModelType() && $oField->isComponent())
+			{
+				$bResult = true;
+				break;
+			}
+		}
+
+		return $bResult;
+	}
+
+	/**
+	 * Check if model has one-to-many field
+	 *
+	 * @return	bool
+	 */
+	public function hasOneToManyField()
+	{
+		$bResult = false;
+		foreach($this->getFields() as $oField)
+		{
+			$oField = new \ScaZF\Tool\Wrapper\Field($this, $oField);
+
+			if($oField->isModelType() && $oField->isOneToMany())
+			{
+				$bResult = true;
+				break;
+			}
+		}
+
+		return $bResult;
+	}
+
+	/**
+	 * Check if model has object field
+	 *
+	 * @return	bool
+	 */
+	public function hasObjectField()
+	{
+		$bResult = false;
+		foreach($this->getFields() as $oField)
+		{
+			$oField = new \ScaZF\Tool\Wrapper\Field($this, $oField);
+
+			if($oField->isModelType() && !$oField->isComponent() && !$oField->isOneToMany())
+			{
+				$bResult = true;
+				break;
+			}
+		}
+
+		return $bResult;
 	}
 
 	/**

@@ -27,12 +27,12 @@ trait {*model-name*}Factory
 
 // CREATE METHODS
 
-	{*create*}
-	{*prepare-create*}
+{*create*}
+{*prepare-create*}
 
 // FACTORY METHODS
 
-	{*factory*}
+{*factory*}
 
 // OTHER
 
@@ -46,17 +46,17 @@ trait {*model-name*}Factory
 		return new {*model-type*}();
 	}
 
-	{*get-select*}
-	{*build-list*}
-	{*prepare-build*}
+{*get-select*}
+{*build-list*}
+{*prepare-build*}
 }
 {@end=main@}
 {@begin=create@}
 	/**
 	 * Create object
 	 *
-	 {fields-comments}
-	 * @return	{*model*}
+{*fields-comments*}
+	 * @return	{*model-type*}
 	 */
 	public function create({*fields-list*})
 	{
@@ -67,11 +67,11 @@ trait {*model-name*}Factory
 
 {@end=create@}
 {@begin=create-comment@}
-	* @param	{*field-type*}	{*field-name*}
+	 * @param	{*field-type*}	{*p-field-name*}
 {@end=create-comment@}
 {@begin=prepare-create-field@}
-{@end=prepare-create-field@}
 				'{*db-field*}' => $aData[{*db-field-nr*}]
+{@end=prepare-create-field@}
 {@begin=prepare-create-simple@}
 	/**
 	 * Prepare data to create
@@ -81,11 +81,9 @@ trait {*model-name*}Factory
 	 */
 	protected function prepareToCreate(array $aData)
 	{
-		return [
-			'{*db-table*}' => [
-				{*db-fields*}
-			]
-		];
+		return ['{*db-table*}' => [
+{*db-fields*}
+		]];
 	}
 
 {@end=prepare-create-simple@}
@@ -101,7 +99,7 @@ trait {*model-name*}Factory
 		$aParent = parent::prepareToCreate($aData);
 
 		$aParent['{*db-table*}'] = [
-			{*db-fields*}
+{*db-fields*}
 		];
 
 		return $aParent;
@@ -191,7 +189,7 @@ trait {*model-name*}Factory
 	{
 		$oSelect = parent::getSelect($mFields, $aOptions);
 
-		{*field-preload*}
+{*field-preload*}
 
 		return $oSelect;
 	}
@@ -212,7 +210,7 @@ trait {*model-name*}Factory
 {@begin=get-select-preload@}
 		if(in_array('{*preload*}', $aOptions)) // zawiera pole
 		{
-			$aThis =  {*current-type*}::info();
+			$aThis = {*current-type*}::info();
 			$aInfo = {*other-type*}::info();
 			$oSelect->join(
 				$aInfo['table'] .' AS '. $aInfo['alias'],
@@ -220,7 +218,7 @@ trait {*model-name*}Factory
 			);
 		}
 
-{@end=get-select-prelaod@}
+{@end=get-select-preload@}
 {@begin=build-list@}
 	/**
 	 * Build model list
@@ -235,7 +233,7 @@ trait {*model-name*}Factory
 			return array();
 		}
 
-		{*field-preload*}
+{*field-preload*}
 
 		return parent::buildList($aDbResult, $aOptions);
 	}
@@ -250,7 +248,7 @@ trait {*model-name*}Factory
 				$aIds[] = $aRow[{*current-type*}::info()['key']];
 			}
 
-			$aTmp = {*other-type*}Factory::getInstance()->get{*method-name*}($aIds);
+			$aTmp = {*other-type*}Factory::getInstance()->get{*model-name*}{*field-name*}($aIds);
 
 			foreach($aDbResult as &$aRow)
 			{
@@ -261,27 +259,15 @@ trait {*model-name*}Factory
 {@end=build-list-many@}
 {@begin=prepare-build@}
 	/**
-	 * Prepare data ti build
+	 * Prepare data to build
+	 *
+	 * @param	array	$aRow		db row
+	 * @param	array	$aOptions	build options
+	 * @return	void
 	 */
 	protected function prepareToBuild(array &$aRow, array $aOptions = [])
 	{
-		{*preload*}
-		if(in_array('settings', $aOptions)) // component
-		{
-			if(isset($aRow[Settings::info()['key']]))
-			{
-				$aRow['_settings'] = (new \Model\Users\Settings())->init($aRow);
-			}
-			else
-			{
-				$aRow['_settings'] = false;
-			}
-		}
-
-		if(in_array('user', $aOptions)) // standard field
-		{
-			$aRow['_user'] = (new \Model\Users\User())->init($aRow);
-		}
+{*field-preload*}
 	}
 
 {@end=prepare-build@}

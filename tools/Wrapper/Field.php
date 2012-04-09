@@ -12,6 +12,12 @@ namespace ScaZF\Tool\Wrapper;
  */
 class Field
 {
+
+	/**
+	 * calcualated field id
+	 */
+	protected $iId = null;
+
 	/**
 	 * Model definition
 	 *
@@ -51,6 +57,21 @@ class Field
 	{
 		$this->oModel = $oModel;
 		$this->oField = $oField;
+	}
+
+	/**
+	 * Return field identificator
+	 *
+	 * @return	string
+	 */
+	public function getId()
+	{
+		if($this->iId === null)
+		{
+			$this->iId = sha1($this->oModel->getAlias() .'-'. $this->getName());
+		}
+
+		return $this->iId;
 	}
 
 	/**
