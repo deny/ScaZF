@@ -76,7 +76,7 @@ class Field extends ValidatorAbstract
 	// access
 		foreach($oField->getAccess() as $sAccess)
 		{
-			if(!in_array($sAccess, array('get', 'set')))
+			if(!in_array($sAccess, array('get', 'set', '_get', '_set')))
 			{
 				$this->error(self::WRONG_ACCESS, $sAccess);
 			}

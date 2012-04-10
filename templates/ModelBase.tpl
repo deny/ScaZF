@@ -43,7 +43,7 @@ trait {*model-name*}
 }
 {@end=main@}
 {@begin=const@}
-	CONST {*name*} = {*value*};
+	// CONST {*name*} = '{*value*}';
 {@end=const@}
 {@begin=field@}
 	/**

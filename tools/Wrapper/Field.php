@@ -143,6 +143,10 @@ class Field
 					$aResult['field']['type'] = (empty($aAttr) ? 'TEXT' : 'VARCHAR('. (int) $aAttr[0] . ')');
 					$aResult['field']['other'] = '';
 					break;
+				case 'enum':
+					$aResult['field']['type'] = 'ENUM("'. implode('","', $aAttr) .'")';
+					$aResult['field']['other'] = '';
+					break;
 				default: // model type
 					$oTmp = new \ScaZF\Tool\Wrapper\Model(
 						\ScaZF\Tool\Schema\Manager::getInstance()->getModel($this->getType())
@@ -209,7 +213,7 @@ class Field
 	}
 
 	/**
-	 * Check field type (if is one-to-meny or component)
+	 * Check field type (if is one-to-many or component)
 	 *
 	 * @return	void
 	 */

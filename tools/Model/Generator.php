@@ -39,7 +39,7 @@ class Generator
 
 	// prepare main definition
 		$aModel = [
-			'namespace'		=> $this->sGlobalNamespace .'\\'. $oModel->getPackage(),
+			'namespace'		=> ltrim($this->sGlobalNamespace .'\\'. $oModel->getPackage() . '\\Base', '\\'),
 			'model-name'	=> $oModel->getName(),
 			'consts'		=> '',
 			'fields'		=> '',
@@ -50,6 +50,24 @@ class Generator
 			'db-alias'		=> $oModel->getAlias(),
 			'db-key'		=> $oModel->getKey()
 		];
+
+	// consts
+		foreach($oModel->getFields() as $oField)
+		{
+			$oField = new \ScaZF\Tool\Wrapper\Field($oModel, $oField);
+
+			if($oField->getType() == 'enum')
+			{
+				foreach($oField->getTypeAttribs() as $sAttr)
+				{
+					$aModel['consts'] .= $oTpl->getSubTemplate('const', [
+						'name'		=> strtoupper($oField->getName() .'_'. $sAttr),
+						'value'		=> $sAttr
+					]);
+				}
+				$aModel['consts'] .= "\n";
+			}
+		}
 
 	// prepare getters and setters
 		foreach($oModel->getFields() as $oField)
@@ -439,6 +457,7 @@ class Generator
 		switch($oField->getType())
 		{
 			case 'char': return 'string';
+			case 'enum': return 'string';
 			case 'uint': return 'int';
 			default:
 				return $oField->getType();
@@ -470,6 +489,7 @@ class Generator
 		{
 			case 'string':
 			case 'char':
+			case 'enum':
 				return 's'. $sName;
 			case 'int':
 			case 'uint':
