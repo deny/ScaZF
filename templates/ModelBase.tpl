@@ -172,7 +172,7 @@ trait {*model-name*}
 	{
 		$aComponents = [self::info()];
 		$aTmp = [
-			{*current-key*}	=> $oOwner->getId(),
+			'{*current-key*}'	=> $oOwner->getId(),
 {*init-fields*}
 		];
 		parent::initDefault($aTmp, $aComponents);
@@ -184,7 +184,7 @@ trait {*model-name*}
 		$this->{*p-field-name*} = $aRow['{*db-field-name*}'];
 {@end=init-field@}
 {@begin=init-field-component@}
-			'{*db-field-name*}' => $this->{*p-field-name*}
+			'{*db-field-name*}' => $this->{*p-field-name*},
 {@end=init-field-component@}
 {@begin=init-component@}
 		if(isset($aRow['_{*preload*}']))

@@ -106,12 +106,12 @@ class Generator
 			{
 				$aInit['init-fields'] .= $oTpl->getSubTemplate('init-field', [
 					'p-field-name'	=> $this->getFieldPName($oField),
-					'db-field-name'	=> $oField->getName()
+					'db-field-name'	=> $oModel->getAlias() . '_'. $oField->getName()
 				]);
 
 				$sComponent .= $oTpl->getSubTemplate('init-field-component', [
 					'p-field-name'	=> $this->getFieldPName($oField),
-					'db-field-name'	=> $oField->getName()
+					'db-field-name'	=> $oModel->getAlias() . '_'. $oField->getName()
 				]);
 			}
 		}
@@ -127,7 +127,7 @@ class Generator
 			$aModel['initialization'] .= $oTpl->getSubTemplate('def-init', [
 				'owner-type'		=> $this->getModelType($oOwner),
 				'current-key'		=> $oModel->getKey(),
-				'init-fields'		=> $sComponent
+				'init-fields'		=> rtrim($sComponent, ",\n")
 			]);
 		}
 

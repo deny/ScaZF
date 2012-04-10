@@ -142,6 +142,11 @@ class Model
 	 */
 	public function getExtends()
 	{
+		if(strpos(':', $this->sExtends) === false)
+		{
+			return $this->sPackage .':'. $this->sExtends;
+		}
+		
 		return $this->sExtends;
 	}
 
