@@ -150,39 +150,18 @@ trait {*model-name*}
 	 */
 	public function init(array &$aRow, array &$aComponents = [])
 	{
-		{*init-fields}
-
 		$aComponents[] = self::info();
 		parent::init($aRow, $aComponents);
 
-		{*init-components*}
-		{*init-many*}
+{*init-fields*}
+
+{*init-components*}
+{*init-preload*}
 
 		return $this;
 	}
 
 {@end=main-init@}
-{@begin=extend-init@}
-	/**
-	 * Model initialziation
-	 *
-	 * @param	array	$aRow			row from DB
-	 * @param	array	$aComponents	components desc
-	 */
-	public function init(array &$aRow, array &$aComponents = [])
-	{
-		$aComponents[] = self::info();
-		parent::init($aRow, $aComponents);
-
-		{*init-fields}
-
-		{*init-components*}
-		{*init-many*}
-
-		return $this;
-	}
-
-{@end=extend-init@}
 {@begin=def-init@}
 	/**
 	 * Model default initialziation
@@ -193,8 +172,8 @@ trait {*model-name*}
 	{
 		$aComponents = [self::info()];
 		$aTmp = [
-			{*model-key*}		=> $oOwner->getId(),
-			{*init-fields*}
+			{*current-key*}	=> $oOwner->getId(),
+{*init-fields*}
 		];
 		parent::initDefault($aTmp, $aComponents);
 		return $this;
@@ -216,10 +195,10 @@ trait {*model-name*}
 		}
 
 {@end=init-component@}
-{@begin=init-many@}
+{@begin=init-preload@}
 		if(isset($aRow['_{*preload*}']))
 		{
 			$this->{*p-field-name*} = $aRow['_{*preload*}'];
 		}
 
-{@end=init-many@}
+{@end=init-preload@}

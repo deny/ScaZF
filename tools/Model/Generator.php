@@ -69,6 +69,68 @@ class Generator
 			}
 		}
 
+	// initialization
+		$aInit = [
+			'init-fields'		=> '',
+			'init-components'	=> '',
+			'init-preload'		=> ''
+		];
+		$sComponent = '';
+
+		foreach($oModel->getFields() as $oField)
+		{
+			$oField = new \ScaZF\Tool\Wrapper\Field($oModel, $oField);
+			if($oField->isModelType())
+			{
+				$oOther = new \ScaZF\Tool\Wrapper\Model(
+					\ScaZF\Tool\Schema\Manager::getInstance()->getModel($oField->getType())
+				);
+
+				if($oField->isComponent())
+				{
+					$aInit['init-components'] .= $oTpl->getSubTemplate('init-component', [
+						'preload'		=> $oField->getName(),
+						'p-field-name'	=> $this->getFieldPName($oField),
+						'component-type'=> $this->getModelType($oOther),
+					]);
+				}
+				else
+				{
+					$aInit['init-preload'] .= $oTpl->getSubTemplate('init-preload', [
+						'preload'		=> $oField->getName(),
+						'p-field-name'	=> $this->getFieldPName($oField)
+					]);
+				}
+			}
+			else // standard field
+			{
+				$aInit['init-fields'] .= $oTpl->getSubTemplate('init-field', [
+					'p-field-name'	=> $this->getFieldPName($oField),
+					'db-field-name'	=> $oField->getName()
+				]);
+
+				$sComponent .= $oTpl->getSubTemplate('init-field-component', [
+					'p-field-name'	=> $this->getFieldPName($oField),
+					'db-field-name'	=> $oField->getName()
+				]);
+			}
+		}
+
+		$aModel['initialization'] .= $oTpl->getSubTemplate('main-init', $aInit);
+
+		if($oModel->isComponent())
+		{
+			$oOwner = new \ScaZF\Tool\Wrapper\Model(
+				\ScaZF\Tool\Schema\Manager::getInstance()->getModel($oModel->getComponent())
+			);
+
+			$aModel['initialization'] .= $oTpl->getSubTemplate('def-init', [
+				'owner-type'		=> $this->getModelType($oOwner),
+				'current-key'		=> $oModel->getKey(),
+				'init-fields'		=> $sComponent
+			]);
+		}
+
 	// prepare getters and setters
 		foreach($oModel->getFields() as $oField)
 		{
@@ -462,6 +524,17 @@ class Generator
 			default:
 				return $oField->getType();
 		}
+	}
+
+	/**
+	 * Calculate model full type
+	 *
+	 * @param	\ScaZF\Tool\Wrapper\Model	$oModel	model description
+	 * @return	string
+	 */
+	protected function getModelType(\ScaZF\Tool\Wrapper\Model $oModel)
+	{
+		return $this->sGlobalNamespace . '\\'. $oModel->getPackage() . '\\'. $oModel->getName();
 	}
 
 	/**
