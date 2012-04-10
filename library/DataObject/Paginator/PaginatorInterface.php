@@ -9,7 +9,7 @@ namespace	Sca\DataObject\Paginator;
  * @license		New BSD License
  * @author		Mateusz Juściński, Mateusz Kohut, Daniel Kózka
  */
-class PaginatorInterface implements Zend_Paginator_Adapter_Interface
+class PaginatorInterface implements \Zend_Paginator_Adapter_Interface
 {
 	/**
 	 * Array defines order
@@ -28,21 +28,21 @@ class PaginatorInterface implements Zend_Paginator_Adapter_Interface
 	/**
 	 * Select for rows counting
 	 *
-	 * @var Zend_Db_Select
+	 * @var \Zend_Db_Select
 	 */
 	private $oCountSelect = null;
 
 	/**
 	 * Input data Factory name
 	 *
-	 * @var Sca\DataObject\Factory
+	 * @var \Sca\DataObject\Factory
 	 */
 	private $oFactory = null;
 
 	/**
 	 * Where definition
 	 *
-	 * @var Sca\DataObject\Where
+	 * @var \Sca\DataObject\Where
 	 */
 	private $oWhere = null;
 
@@ -56,12 +56,12 @@ class PaginatorInterface implements Zend_Paginator_Adapter_Interface
 	/**
 	 * Constructor
 	 *
-	 * @param	Sca_DataObject_Factory	$oFactory		factory that creates this object
+	 * @param	\Sca\DataObject\Factory	$oFactory		factory that creates this object
 	 * @param	Zend_Db_Select			$oCountSelect	Select for rows counting
 	 * @param	array					$aOptions		additional options sended to getPage()
-	 * @return	Sca_DataObject_Paginator
+	 * @return	\Sca_DataObject_Paginator
 	 */
-	public function __construct(Sca_DataObject_Factory $oFactory, Zend_Db_Select $oCountSelect, array $aOptions = [])
+	public function __construct(\Sca\DataObject\Factory $oFactory, \Zend_Db_Select $oCountSelect, array $aOptions = [])
 	{
 		$this->oFactory		= $oFactory;
 		$this->oCountSelect	= $oCountSelect;
@@ -77,7 +77,7 @@ class PaginatorInterface implements Zend_Paginator_Adapter_Interface
 	{
 		if($this->iCount === null)
 		{
-			$this->iCount = Zend_Registry::get('db')->fetchOne($this->oCountSelect);
+			$this->iCount = \Zend_Registry::get('db')->fetchOne($this->oCountSelect);
 		}
 
 		return $this->iCount;
@@ -107,7 +107,7 @@ class PaginatorInterface implements Zend_Paginator_Adapter_Interface
 	{
 		if($this->iCount !== null)
 		{
-			throw new Sca\DataObject\Exception('You cannot set ORDER after query execution');
+			throw new \Sca\DataObject\Exception('You cannot set ORDER after query execution');
 		}
 
 		$this->aOrder = $aOrder;
@@ -116,23 +116,23 @@ class PaginatorInterface implements Zend_Paginator_Adapter_Interface
 	/**
 	 * Change query where
 	 *
-	 * @param	string|Sca\DataObject\Where		$mWhere		where string or Where object
+	 * @param	string|\Sca\DataObject\Where		$mWhere		where string or Where object
 	 * @return	void
 	 */
 	public function setWhere($mWhere)
 	{
 		if($this->iCount !== null)
 		{
-			throw new Sca\DataObject\Exception('You cannot set WHERE after query execution');
+			throw new \Sca\DataObject\Exception('You cannot set WHERE after query execution');
 		}
 
-		if($mWhere instanceof Sca\DataObject\Where)
+		if($mWhere instanceof \Sca\DataObject\Where)
 		{
 			$this->oWhere = $mWhere;
 		}
 		else
 		{
-			$this->oWhere = new Sca\DataObject\Where($mWhere);
+			$this->oWhere = new \Sca\DataObject\Where($mWhere);
 		}
 	}
 }

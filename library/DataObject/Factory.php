@@ -200,7 +200,7 @@ abstract class Factory
 			$oInterface->setWhere($mWhere);
 		}
 
-		$oPaginator = new Zend_Paginator($oInterface);
+		$oPaginator = new \Zend_Paginator($oInterface);
 		$oPaginator->setCurrentPageNumber($iPage)
 					->setItemCountPerPage($iCount);
 

@@ -134,8 +134,13 @@ class Field
 	 *
 	 * @return	string
 	 */
-	public function getType()
+	public function getType($bWithPackage = true)
 	{
+		if(!$bWithPackage && strpos($this->sType, ':') !== false)
+		{
+			return explode(':', $this->sType)[1];
+		}
+
 		return $this->sType;
 	}
 

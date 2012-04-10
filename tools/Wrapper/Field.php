@@ -194,7 +194,7 @@ class Field
 
 	public function getModelType()
 	{
-		return '\\'. $this->oModel->getPackage() .'\\'. $this->getType();
+		return '\\'. $this->oModel->getPackage() .'\\'. $this->getType(false);
 	}
 
 	/**

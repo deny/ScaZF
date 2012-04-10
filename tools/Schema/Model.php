@@ -140,13 +140,13 @@ class Model
 	 *
 	 * @return	string
 	 */
-	public function getExtends()
+	public function getExtends($bAddPackage = false)
 	{
-		if(strpos(':', $this->sExtends) === false)
+		if($bAddPackage && strpos($this->sExtends, ':') === false)
 		{
 			return $this->sPackage .':'. $this->sExtends;
 		}
-		
+
 		return $this->sExtends;
 	}
 

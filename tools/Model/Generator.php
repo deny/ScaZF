@@ -167,7 +167,7 @@ class Generator
 					$aModel['fields'] .= $oTpl->getSubTemplate('field', [
 						'field-type'	=> $this->getFieldType($oField),
 						'p-field-name' 	=> $this->getFieldPName($oField),
-						'field-default'	=> $oField->getDefault() === null ? 'null' : $oField->getDefault()
+						'field-default'	=> $oField->getDefault() === null ? 'null' : "'".$oField->getDefault()."'"
 					]);
 				}
 			}
@@ -176,7 +176,7 @@ class Generator
 				$aModel['fields'] .= $oTpl->getSubTemplate('field', [
 					'field-type'	=> $this->getFieldType($oField),
 					'p-field-name' 	=> $this->getFieldPName($oField),
-					'field-default'	=> $oField->getDefault() === null ? 'null' : $oField->getDefault()
+					'field-default'	=> $oField->getDefault() === null ? 'null' : "'".$oField->getDefault()."'"
 				]);
 			}
 
@@ -285,7 +285,7 @@ class Generator
 
 	// prepare main definition
 		$aFactory = [
-			'namespace'		=> $this->sGlobalNamespace .'\\'. $oModel->getPackage(),
+			'namespace'		=> ltrim($this->sGlobalNamespace .'\\'. $oModel->getPackage() .'\\Base', '\\'),
 			'model-name'	=> $oModel->getName(),
 			'model-type'	=> $sModelType,
 			'create'		=> '',

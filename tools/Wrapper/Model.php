@@ -81,7 +81,7 @@ class Model
 		elseif($this->hasExtends()) // if model extend other model
 		{
 			$oTmp = new self(
-				\ScaZF\Tool\Schema\Manager::getInstance()->getModel($this->getExtends())
+				\ScaZF\Tool\Schema\Manager::getInstance()->getModel($this->getExtends(true))
 			);
 
 			$aResult['foreignKeys'][$this->getTableName()] = [
@@ -160,7 +160,7 @@ class Model
 			elseif($this->oModel->hasExtends()) // model extends something
 			{
 				$oExtend = new self(
-					\ScaZF\Tool\Schema\Manager::getInstance()->getModel($this->oModel->getExtends())
+					\ScaZF\Tool\Schema\Manager::getInstance()->getModel($this->oModel->getExtends(true))
 				);
 
 				$this->sTableName = $oExtend->getTableName() . '_e_'. $this->oModel->getName();
@@ -206,7 +206,7 @@ class Model
 		if($this->hasExtends())
 		{
 			$oParent = new self(
-				\ScaZF\Tool\Schema\Manager::getInstance()->getModel($this->getExtends())
+				\ScaZF\Tool\Schema\Manager::getInstance()->getModel($this->getExtends(true))
 			);
 
 			$aResult = $oParent->getAllFields();
@@ -261,7 +261,7 @@ class Model
 			if($this->oModel->hasExtends())
 			{
 				$oExtend = new self(
-					\ScaZF\Tool\Schema\Manager::getInstance()->getModel($this->oModel->getExtends())
+					\ScaZF\Tool\Schema\Manager::getInstance()->getModel($this->oModel->getExtends(true))
 				);
 				$this->sKey = $oExtend->getKey();
 			}
