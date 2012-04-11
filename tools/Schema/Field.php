@@ -78,6 +78,7 @@ class Field
 		preg_match('/^([a-zA-Z:]+)(\([0-9a-zA-Z, \*]+\))?/', $sType, $aMatches);
 
 		$this->sName = $sName;
+		$this->sPackage = $aMatches[0];
 		$this->sType = $aMatches[1];
 		$this->aTypeAttr = empty($aMatches[2]) ? array() : explode(',', trim($aMatches[2],'()'));
 

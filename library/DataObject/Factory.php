@@ -165,7 +165,7 @@ abstract class Factory
 
 		$aResult = $oSelect->query()->fetchAll();
 
-		return $this->createList($aResult, $aOptions);
+		return $this->buildList($aResult, $aOptions);
 	}
 
 	/**

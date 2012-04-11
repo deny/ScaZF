@@ -96,6 +96,14 @@ class Generator
 				}
 				else
 				{
+					if(!$oField->isOneToMany())
+					{
+						$aInit['init-fields'] .= $oTpl->getSubTemplate('init-field', [
+							'p-field-name'	=> $this->getFieldPName($oField, 'i'). 'Id',
+							'db-field-name'	=> $oModel->getAlias() . '_'. $oField->getName()
+						]);
+					}
+
 					$aInit['init-preload'] .= $oTpl->getSubTemplate('init-preload', [
 						'preload'		=> $oField->getName(),
 						'p-field-name'	=> $this->getFieldPName($oField)
@@ -281,7 +289,7 @@ class Generator
 		$oTpl = \ScaZF\Tool\Model\Template::getTemplate('FactoryBase');
 		$this->loadOneToMany($oModel->getPackage());
 		$oModel = new \ScaZF\Tool\Wrapper\Model($oModel);
-		$sModelType = $this->sGlobalNamespace .'\\'. $oModel->getPackage() . '\\'. $oModel->getName();
+		$sModelType = $this->getModelType($oModel);//$this->sGlobalNamespace .'\\'. $oModel->getPackage() . '\\'. $oModel->getName();
 
 	// prepare main definition
 		$aFactory = [
@@ -381,7 +389,7 @@ class Generator
 				$oOther = new \ScaZF\Tool\Wrapper\Model(
 					\ScaZF\Tool\Schema\Manager::getInstance()->getModel($aInfo['model'])
 				);
-				$sOtherType = $this->sGlobalNamespace . '\\'. $oOther->getPackage() . '\\'. $oOther->getName();
+				$sOtherType = $this->getModelType($oOther); //$this->sGlobalNamespace . '\\'. $oOther->getPackage() . '\\'. $oOther->getName();
 
 				$sTechTable = $oOther->getTableName() .'_j_'. strtolower($aInfo['field']);
 				$aTmp = explode('_', $sTechTable);
@@ -414,7 +422,7 @@ class Generator
 				$oOther = new \ScaZF\Tool\Wrapper\Model(
 					\ScaZF\Tool\Schema\Manager::getInstance()->getModel($oField->getType())
 				);
-				$sOtherType = $this->sGlobalNamespace . '\\'. $oOther->getPackage() . '\\'. $oOther->getName();
+				$sOtherType = $this->getModelType($oOther);//$this->sGlobalNamespace . '\\'. $oOther->getPackage() . '\\'. $oOther->getName();
 
 				if($oField->isComponent())
 				{
@@ -434,7 +442,7 @@ class Generator
 					$oOther = new \ScaZF\Tool\Wrapper\Model(
 						\ScaZF\Tool\Schema\Manager::getInstance()->getModel($oField->getType())
 					);
-					$sOtherType = $this->sGlobalNamespace . '\\'. $oOther->getPackage() . '\\'. $oOther->getName();
+					$sOtherType =  $this->getModelType($oOther);//$this->sGlobalNamespace . '\\'. $oOther->getPackage() . '\\'. $oOther->getName();
 
 					$sBuildList .= $oTpl->getSubTemplate('build-list-many',[
 						'preload'		=> strtolower($oField->getName()),
@@ -446,10 +454,26 @@ class Generator
 				}
 				else
 				{
+					$oTmp = $oOther;
+					$sOtherPre = '';
+					while($oTmp->hasExtends())
+					{
+						$oTmp2 = new \ScaZF\Tool\Wrapper\Model(
+							\ScaZF\Tool\Schema\Manager::getInstance()->getModel($oTmp->getExtends())
+						);
+						$sOtherPre .= $oTpl->getSubTemplate('get-select-preload-other',[
+							'current-type'	=> $this->getModelType($oTmp),
+							'other-type'	=> $this->getModelType($oTmp2)
+						]);
+						$oTmp = $oTmp2;
+					}
+
 					$sGetSelect .= $oTpl->getSubTemplate('get-select-preload',[
 						'preload'		=> strtolower($oField->getName()),
 						'current-type'	=> $sModelType,
-						'other-type'	=> $sOtherType
+						'other-type'	=> $sOtherType,
+						'db-field-name'	=> $oModel->getAlias() .'_'. $oField->getName(),
+						'other-join'	=> $sOtherPre
 					]);
 
 					$sPrepToBuild .= $oTpl->getSubTemplate('prepare-build-model',[

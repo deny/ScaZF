@@ -194,7 +194,14 @@ class Field
 
 	public function getModelType()
 	{
-		return '\\'. $this->oModel->getPackage() .'\\'. $this->getType(false);
+		$aTmp = explode(':', $this->getType(true));
+
+		if(isset($aTmp[1]))
+		{
+			return '\\'. $aTmp[0] .'\\'. $aTmp[1];
+		}
+
+		return '\\'. $this->oModel->getPackage() .'\\'. $aTmp[0];
 	}
 
 	/**

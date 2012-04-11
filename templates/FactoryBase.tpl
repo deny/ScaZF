@@ -213,11 +213,19 @@ trait {*model-name*}Factory
 			$aInfo = {*other-type*}::info();
 			$oSelect->join(
 				$aInfo['table'] .' AS '. $aInfo['alias'],
-				$aInfo['alias'] .'.'. $aInfo['key'] .' = '. $aThis['alias'] .'.d_user'
+				$aInfo['alias'] .'.'. $aInfo['key'] .' = '. $aThis['alias'] .'.{*db-field-name*}'
 			);
+{*other-join*}
 		}
 
 {@end=get-select-preload@}
+{@begin=get-select-preload-other@}
+			$oSelect->join(
+				{*other-type*}::info()['table'] .' AS '. {*other-type*}::info()['alias'],
+				{*other-type*}::info()['alias'] .'.'.{*other-type*}::info()['key'] .' = '.
+				{*current-type*}::info()['alias'] .'.'. {*current-type*}::info()['key']
+			);
+{@end=get-select-preload-other@}
 {@begin=build-list@}
 	/**
 	 * Build model list

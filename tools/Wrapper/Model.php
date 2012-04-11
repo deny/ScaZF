@@ -180,6 +180,28 @@ class Model
 	}
 
 	/**
+	 * Return extended model name
+	 *
+	 * @return string
+	 */
+	public function getExtends($bWithPacakge = false)
+	{
+		if(!$this->hasExtends())
+		{
+			return null;
+		}
+
+		$sExt = $this->oModel->getExtends();
+
+		if(strpos($sExt, ':') === false)
+		{
+			return $this->oModel->getPackage() .':'. $sExt;
+		}
+
+		return $sExt;
+	}
+
+	/**
 	 * Return fields ids
 	 *
 	 * @return	array
