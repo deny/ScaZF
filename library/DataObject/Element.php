@@ -247,13 +247,4 @@ abstract class Element
 			$this->iId
 		);
 	}
-
-// STATIC
-
-	/**
-	 * Return ifnormation about element (table, alias, key)
-	 *
-	 * @return	array
-	 */
-	public static abstract function info();
 }
