@@ -346,7 +346,7 @@ abstract class Factory
 	 */
 	protected function getCountSelect(array $aOptions = [])
 	{
-		return $this->getSelect()
+		return $this->getSelect('*', $aOptions)
 						->reset(\Zend_Db_Select::COLUMNS)
 						->columns(new \Zend_Db_Expr('COUNT(*)'));
 	}
