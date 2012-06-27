@@ -24,7 +24,7 @@ class Sca_View_Helper_SortLink extends Zend_View_Helper_Abstract
 							($bAsc ? 'asc' : 'desc').
 							($bCurrent ? ' sca-sl-current' : '') .
 						'" href="'.
-							$sAction . $this->view->sPageUrl .'/sort/'. $sName .':'. $sType .
+							$sAction .'/sort/'. $sName .':'. $sType .
 					'">'.
 						$sName .
 					'</a>';
