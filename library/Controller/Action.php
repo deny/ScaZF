@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Rozbudowany kontroler CRUD
+ * Extended CRUD controller
  *
  * @author	Daniel Kózka
  */
@@ -21,6 +21,110 @@ class Sca_Controller_Action extends \Zend_Controller_Action
 	 * @var	\Model\Users\User
 	 */
 	protected $oCurrentUser;
+
+		/**
+	 * Items per page
+	 *
+	 * @var	int
+	 */
+	private $iItemsPerPage = 1;
+
+	/**
+	 * Controller name
+	 *
+	 * @var	int
+	 */
+	private $sController = '';
+
+	/**
+	 * Factory
+	 *
+	 * @var	\Sca\DataObject\Factory
+	 */
+	protected $oFactory;
+
+	/**
+	 * Preparation of controller
+	 *
+	 * @param	string		$sController	nazwa kontrolera
+	 * @param	int			$iListCount		ilość elementów na liście
+	 * @return	void
+	 */
+	public function prepareController($sController, $oFactory, $iListCount)
+	{
+		$this->sController = $sController;
+		$this->oFactory = $oFactory;
+		$this->iItemsPerPage = $iListCount;
+	}
+
+	/**
+	 * return url to action
+	 *
+	 * @param	string	$sAction	controller action
+	 * @param	array	$aParams	url params
+	 * @return	string
+	 */
+	protected function getUrl(array $aParams = array(), $sAction)
+	{
+		$sParams = '';
+		foreach($aParams as $sKey => $sValue)
+		{
+			if($sValue !== null)
+			{
+				$sParams .= '/'. $sKey .'/'. $sValue;
+			}
+		}
+
+		return '/'. $this->sController .'/'. $sAction . $sParams;
+	}
+
+	/**
+	 * Inicjalizacja
+	 */
+	public function init()
+	{
+		parent::init();
+		$this->view->sController = $this->sController;
+	}
+
+	/**
+	 * Return paginator for list action
+	 *
+	 * @param	int		$iPage		page number
+	 * @param	string	$sDbSort	db field sort
+	 * @param	array	$aOptions	pagination options
+	 * @return	Zend_Paginator
+	 */
+	protected function getPaginator($iPage, $sDbSort, array $aOptions = array())
+	{
+		return $this->oFactory->getPaginator(
+			$iPage,
+			$this->iItemsPerPage,
+			[$sDbSort]
+		);
+	}
+
+	/**
+	 * Return item to edit
+	 *
+	 * @return	\Model\Tasks\Task
+	 */
+	protected function getItem()
+	{
+		try
+		{
+			$iId = $this->_request->getParam('id', 0);
+			$oItem = $this->oFactory->getOne($iId);
+		}
+		catch(\Sca\DataObject\Exception $oExc)
+		{
+			$this->moveTo404();
+			exit();
+		}
+
+		$this->view->assign('oItem', $oItem);
+		return $oItem;
+	}
 
 	/**
 	 * Przekazuje do widoku niezbędne dane z formularzy

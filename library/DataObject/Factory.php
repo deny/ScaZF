@@ -207,6 +207,38 @@ abstract class Factory
 		return $oPaginator;
 	}
 
+	/**
+	 * Return items list
+	 *
+	 * @param	string	$sKey		key field
+	 * @param	string	$sValue		value field
+	 * @param	array							$aOrder		array with order definition
+	 * @param	string|Sca\DataObject\Where		$oWhere		where string or Where object
+	 * @param	array							$aOptions	array with additional options
+	 * @return	array
+	 */
+	public function getList($sKey = null, $sValue = null, array $aOrder = [], \Sca\DataObject\Where $oWhere = null, array $aOptions = [])
+	{
+		if(!isset($sKey) || !isset($sValue))
+		{
+			return array();
+		}
+		
+		$oSelect = $this->getSelect(array($sKey, $sValue), $aOptions);
+
+		if(isset($oWhere))
+		{
+			$oSelect->where($oWhere->getWhere());
+		}
+
+		if(!empty($aOrder))
+		{
+			$oSelect->order($aOrder);
+		}
+
+		return $this->oDb->fetchPairs($oSelect);
+	}
+
 // NEW ELEMENT CREATE
 
 	/**

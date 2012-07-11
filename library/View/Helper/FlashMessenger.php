@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Helper wyświetlajacy komunikaty z Flash Messengera
+ * Display Flash Messenger messages
  *
  * @author	Daniel Kózka
  */
