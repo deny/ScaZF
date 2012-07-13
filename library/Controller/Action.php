@@ -52,7 +52,7 @@ class Sca_Controller_Action extends \Zend_Controller_Action
 	 */
 	public function prepareController($sController, $oFactory, $iListCount)
 	{
-		$this->sController = $sController;
+		$this->sController = strtolower($sController);
 		$this->oFactory = $oFactory;
 		$this->iItemsPerPage = $iListCount;
 	}
@@ -97,11 +97,19 @@ class Sca_Controller_Action extends \Zend_Controller_Action
 	 */
 	protected function getPaginator($iPage, $sDbSort, array $aOptions = array())
 	{
-		return $this->oFactory->getPaginator(
+		$oPaginator = $this->oFactory->getPaginator(
 			$iPage,
 			$this->iItemsPerPage,
 			[$sDbSort]
 		);
+
+		if($oPaginator->count() > 0 && $iPage > $oPaginator->count())
+		{
+			$this->moveTo404();
+			exit();
+		}
+
+		return $oPaginator;
 	}
 
 	/**

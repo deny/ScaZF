@@ -3,7 +3,7 @@
 /**
  * @namespace
  */
-namespace ScaZF\Tool\Model;
+namespace ScaZF\Tool\Base;
 
 /**
  * Class for model tempalte parse and process
@@ -37,7 +37,7 @@ class Template
 	 * Constructor
 	 *
 	 * @param	string	$sFile	path to template file
-	 * @return	\ScaZF\Tool\Model\Template
+	 * @return	\ScaZF\Tool\Base\Template
 	 */
 	public function __construct($sFile)
 	{
@@ -102,7 +102,7 @@ class Template
 	 * Return template
 	 *
 	 * @param	string	$sName	template name
-	 * @return	\ScaZF\Tool\Model\Template
+	 * @return	\ScaZF\Tool\Base\Template
 	 */
 	public static function getTemplate($sName)
 	{

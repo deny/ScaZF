@@ -3,10 +3,10 @@
 /**
  * @namespace
  */
-namespace ScaZF\Tool\Model;
+namespace ScaZF\Tool\Crud;
 
 /**
- * Model generator
+ * Crud generator
  *
  * @author	Daniel Kózka
  */
