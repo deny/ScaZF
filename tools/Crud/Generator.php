@@ -64,7 +64,7 @@ class Generator
 		$aMain['sort-types'] = implode("", $aTmp);
 
 	// model factory
-		$aMain['model']	= $this->sGlobalNamespace .'\\'. $oModel->getPackage() . '\\'. $oModel->getName();
+		$aMain['model']	= $this->getModelType($oModel);
 
 	// field list - create function
 		$aTmp = array();
@@ -84,7 +84,7 @@ class Generator
 			$aAccess = $oField->getAccess();
 			$aField = $oField->getDescription();
 
-			if(in_array('set', $aAccess) && !$oField->isModelType())
+			if(in_array('set', $aAccess) && in_array('get', $aAccess))
 			{
 				if($oField->isModelType())
 				{
@@ -107,6 +107,85 @@ class Generator
 		}
 		$aMain['set-list'] = rtrim(implode("\n", $aTmp), ',');
 
+	// init values
+		$aTmp = array();
+		foreach($oModel->getFields() as $oField)
+		{
+			$oField = new \ScaZF\Tool\Wrapper\Field($oModel, $oField);
+			$aAccess = $oField->getAccess();
+			$aField = $oField->getDescription();
+
+			if(in_array('set', $aAccess) && in_array('get', $aAccess))
+			{
+				if($oField->isModelType())
+				{
+					if(!$oField->isComponent() && !$oField->isOneToMany())
+					{
+						$aTmp[] = rtrim($oTpl->getSubTemplate('init-values', [
+							'method'	=> 'get'. $this->getFieldName($oField) . 'Id',
+							'name' 		=> $aField['field']['orig-name']
+						]), "\n") . ',';
+					}
+				}
+				else
+				{
+					$aTmp[] = rtrim($oTpl->getSubTemplate('init-values', [
+						'method'	=> 'get'. $this->getFieldName($oField),
+						'name' 		=> $aField['field']['orig-name']
+					]), "\n") . ',';
+				}
+			}
+		}
+		$aMain['init-values'] = rtrim(implode("\n", $aTmp), ',');
+
+	// validators-edit
+		$aTmp = $aEdit = array();
+		foreach($oModel->getFields() as $oField)
+		{
+			$oField = new \ScaZF\Tool\Wrapper\Field($oModel, $oField);
+			$aAccess = $oField->getAccess();
+			$aField = $oField->getDescription();
+
+			if(in_array('set', $aAccess) && in_array('get', $aAccess))
+			{
+				if($oField->isModelType())
+				{
+					if(!$oField->isComponent() && !$oField->isOneToMany())
+					{
+						$aTmp[] = rtrim($oTpl->getSubTemplate('validators-edit', [
+							'validators'=> '',
+							'name' 		=> $aField['field']['orig-name']
+						]), "\n") . ',';
+						$aEdit[] = $aField['field']['orig-name'];
+					}
+				}
+				else
+				{
+					$aEdit[] = $aField['field']['orig-name'];
+					$aTmp[] = rtrim($oTpl->getSubTemplate('validators-edit', [
+							'validators'=> '',
+							'name' 		=> $aField['field']['orig-name']
+						]), "\n") . ',';
+				}
+			}
+		}
+		$aMain['validators-edit'] = rtrim(implode("\n", $aTmp), ',');
+
+	// validators-add
+		$aTmp = array();
+		foreach($aModelDesc['fields'] as $aField)
+		{
+			$sName = $aField['orig-name'];
+
+			if(!in_array($sName, $aEdit) && $sName != 'id')
+			{
+				$aTmp[] = $oTpl->getSubTemplate('validators-add', [
+					'validators'=> '',
+					'name' 		=> $sName
+				]);
+			}
+		}
+		$aMain['validators-add'] = implode("", $aTmp);
 
 	// złożenie ostacznej wersji
 		return $oTpl->getSubTemplate('main', $aMain);
@@ -132,29 +211,6 @@ class Generator
 	}
 
 	/**
-	 * Calculate field type
-	 *
-	 * @param	\ScaZF\Tool\Wrapper\Field $oField	field description
-	 * @return	string
-	 */
-	protected function getFieldType(\ScaZF\Tool\Wrapper\Field $oField)
-	{
-		if($oField->isModelType())
-		{
-			return $this->sGlobalNamespace . $oField->getModelType();
-		}
-
-		switch($oField->getType())
-		{
-			case 'char': return 'string';
-			case 'enum': return 'string';
-			case 'uint': return 'int';
-			default:
-				return $oField->getType();
-		}
-	}
-
-	/**
 	 * Calculate model full type
 	 *
 	 * @param	\ScaZF\Tool\Wrapper\Model	$oModel	model description
@@ -163,72 +219,5 @@ class Generator
 	protected function getModelType(\ScaZF\Tool\Wrapper\Model $oModel)
 	{
 		return $this->sGlobalNamespace . '\\'. $oModel->getPackage() . '\\'. $oModel->getName();
-	}
-
-	/**
-	 * Calculate field prefixed-name
-	 *
-	 * @param	\ScaZF\Tool\Wrapper\Field 	$oField		field description
-	 * @param	string						$sPrefix	optional field prefix
-	 * @return	string
-	 */
-	protected function getFieldPName(\ScaZF\Tool\Wrapper\Field $oField, $sPrefix = null)
-	{
-		$sName = $this->getFieldName($oField);
-
-		if(isset($sPrefix))
-		{
-			return $sPrefix. $sName;
-		}
-
-		if($oField->isModelType())
-		{
-			return 'o'. $sName;
-		}
-
-		switch($oField->getType())
-		{
-			case 'string':
-			case 'char':
-			case 'enum':
-				return 's'. $sName;
-			case 'int':
-			case 'uint':
-				return 'i'. $sName;
-		}
-
-		return '';
-	}
-
-	/**
-	 * Load information about models connected one-to-many with package
-	 *
-	 * @param	strign	$sPackage	package name
-	 * @return	array
-	 */
-	protected function loadOneToMany($sPackage)
-	{
-		$oPackage = \ScaZF\Tool\Schema\Manager::getInstance()->getPackage($sPackage);
-
-		foreach($oPackage->getModels() as $oModel)
-		{
-			$oModel = new \ScaZF\Tool\Wrapper\Model($oModel);
-			foreach($oModel->getFields() as $oField)
-			{
-				$oField = new \ScaZF\Tool\Wrapper\Field($oModel, $oField);
-				if($oField->isModelType() && $oField->isOneToMany())
-				{
-					if(!isset($this->aMultiInfo[$oField->getType()]))
-					{
-						$this->aMultiInfo[$oField->getType()] = [];
-					}
-
-					$this->aMultiInfo[$oField->getType()][] = [
-						'model'	=> $oModel->getName(),
-						'field'	=> $oField->getName()
-					];
-				}
-			}
-		}
 	}
 }

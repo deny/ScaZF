@@ -127,7 +127,7 @@ class {*controller*}Controller extends Sca_Controller_Action
 		else
 		{
 			$this->view->assign('aValues', [
-				{*init-values*}
+{*init-values*}
 			]);
 		}
 	}
@@ -157,12 +157,12 @@ class {*controller*}Controller extends Sca_Controller_Action
 
     	// validators
 		$aValidators = [
-			{*validators-edit*}
+{*validators-edit*}
 		];
 
 		if(!$bEdit) // if add
 		{
-			{*validators-add*}
+{*validators-add*}
 		}
 
 		$aFitlers = [
@@ -184,10 +184,10 @@ class {*controller*}Controller extends Sca_Controller_Action
 				$oItem->{*method*}($aData['{*name*}']);
 {@end=set-list@}
 {@begin=init-values@}
-			'{*name*}' => $oItem->{*method*}(),
+				'{*name*}' => $oItem->{*method*}()
 {@end=init-values@}
 {@begin=validators-edit@}
-			'name' => [
+			'{*name*}' => [
 				{*validators*}
 			]
 {@end=validators-edit@}
