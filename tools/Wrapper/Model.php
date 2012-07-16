@@ -70,6 +70,7 @@ class Model
 		// add key field
 		$aResult['fields'][] = [
 			'name' 		=> $this->getKey(),
+			'orig-name'	=> 'id',
 			'type'		=> 'INT(10)',
 			'other'		=> 'UNSIGNED' . ($this->hasPrimaryKey() ? ' NOT NULL AUTO_INCREMENT' : '')
 		];

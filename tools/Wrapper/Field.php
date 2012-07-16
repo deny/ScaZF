@@ -124,7 +124,7 @@ class Field
 			$sName = strtolower($this->oModel->getAlias() .'_'. $this->getName());
 			$aAttr = $this->getTypeAttribs();
 
-			$aResult['field'] = ['name' => $sName];
+			$aResult['field'] = ['name' => $sName, 'orig-name' => $this->getName()];
 			switch($this->getType())
 			{
 				case 'int':

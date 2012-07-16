@@ -9,7 +9,7 @@ class {*controller*}Controller extends Sca_Controller_Action
 	 * @var	array
 	 */
 	protected $aAllowSort = [
-		{*sort-types*}
+{*sort-types*}
 	];
 
 	/**
@@ -19,7 +19,7 @@ class {*controller*}Controller extends Sca_Controller_Action
 	{
 		$this->prepareController(
 			{*controller*},
-			{*controller*}Factory::getInstance(),
+			{*model*}Factory::getInstance(),
 			10
 		);
 
@@ -82,7 +82,7 @@ class {*controller*}Controller extends Sca_Controller_Action
 				$aData = $oFilter->getEscaped();
 
 				$this->oFactory->create(
-					{*create-list*}
+{*create-list*}
 				);
 
 				$this->addMessage('Item successful added', self::MSG_OK);
@@ -113,7 +113,7 @@ class {*controller*}Controller extends Sca_Controller_Action
 			{
 				$aData = $oFilter->getEscaped();
 
-				{*set-list*}
+{*set-list*}
 				$oItem->save();
 
 				$this->addMessage('Item successful changed', self::MSG_OK);
@@ -175,7 +175,7 @@ class {*controller*}Controller extends Sca_Controller_Action
 }
 {@end=main@}
 {@begin=sort-types@}
-		'{name}' => '{db-name}',
+		'{*name*}' => '{*db-name*}',
 {@end=sort-types@}
 {@begin=create-list@}
 					$aData['{*name*}']
@@ -190,7 +190,7 @@ class {*controller*}Controller extends Sca_Controller_Action
 			'name' => [
 				{*validators*}
 			]
-{@end=validators@}
+{@end=validators-edit@}
 {@begin=validators-add@}
 			$aValidators['{*name*}'] = [
 				{*validators*}
