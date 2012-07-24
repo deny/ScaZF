@@ -205,65 +205,58 @@ class Generator
 			'content'	=> ''
 		];
 
-	// header
-		$aTmp = array();
-		foreach($aModelDesc['fields'] as $aField)
-		{
-			if($aField['orig-name'] == 'id')
-			{
-				continue;
-			}
+		$aHeader = $aContent = array();
 
-			if($aField['type'] == 'TEXT')
-			{
-				$aTmp[] = rtrim($oTpl->getSubTemplate('header-simple', [
-					'name' 		=> $aField['orig-name']
-				]), "\n");
-			}
-			else
-			{
-				$aTmp[] = rtrim($oTpl->getSubTemplate('header-sort', [
-					'name' 		=> $aField['orig-name']
-				]), "\n");
-			}
-		}
-		$aMain['header'] = implode("\n", $aTmp);
-
-	// content
-		$aTmp = array();
 		foreach($oModel->getFields() as $oField)
 		{
 			$oField = new \ScaZF\Tool\Wrapper\Field($oModel, $oField);
-			$aField = $oField->getDescription();
+			$aField = $oField->getDescription()['field'];
 
 			if($aField['orig-name'] == 'id')
 			{
 				continue;
 			}
+
+			$sHTpl = $sCTpl = null;
+			$sFieldName = $this->getFieldName($oField);
 
 			if($oField->isModelType())
 			{
 				if(!$oField->isComponent() && !$oField->isOneToMany())
 				{
-					$aTmp[] = rtrim($oTpl->getSubTemplate('content-simple', [
-						'method' 		=> 'get'. $this->getFieldName($oField). 'Id'
-					]), "\n");
+					$sHTpl = 'header-sort';
+					$sCTpl = 'content-simple';
+					$sFieldName .= 'Id';
 				}
 			}
-			elseif($aField['field']['type'] == 'TEXT')
+			elseif($aField['type'] == 'TEXT')
 			{
-				$aTmp[] = rtrim($oTpl->getSubTemplate('content-trim', [
-					'method' 		=> 'get'. $this->getFieldName($oField)
-				]), "\n");
+				$sHTpl = 'header-simple';
+				$sCTpl = 'content-trim';
 			}
 			else
 			{
-				$aTmp[] = rtrim($oTpl->getSubTemplate('content-simple', [
-					'method' 		=> 'get'. $this->getFieldName($oField)
+				$sHTpl = 'header-sort';
+				$sCTpl = 'content-simple';
+			}
+
+			if($sHTpl !== null)
+			{
+				$aHeader[] = rtrim($oTpl->getSubTemplate($sHTpl, [
+					'name' 		=> $aField['orig-name']
+				]), "\n");
+			}
+
+			if($sCTpl !== null)
+			{
+				$aContent[] = rtrim($oTpl->getSubTemplate($sCTpl, [
+					'method' 		=> 'get'. $sFieldName
 				]), "\n");
 			}
 		}
-		$aMain['content'] = implode("\n", $aTmp);
+
+		$aMain['header'] = implode("\n", $aHeader);
+		$aMain['content'] = implode("\n", $aContent);
 
 		// result
 		return $oTpl->getSubTemplate('main', $aMain);
