@@ -5,11 +5,7 @@
  */
 namespace ScaZF\Tool\Crud;
 
-/**
- * Crud generator
- *
- * @author	Daniel Kózka
- */
+
 class Generator
 {
 	/**
@@ -93,7 +89,7 @@ class Generator
 						$aTmp[] = rtrim($oTpl->getSubTemplate('set-list', [
 							'method'	=> 'set'. $this->getFieldName($oField) . 'Id',
 							'name' 		=> $aField['field']['orig-name']
-						]), "\n") . ',';
+						]), "\n");
 					}
 				}
 				else
@@ -101,11 +97,11 @@ class Generator
 					$aTmp[] = rtrim($oTpl->getSubTemplate('set-list', [
 						'method'	=> 'set'. $this->getFieldName($oField),
 						'name' 		=> $aField['field']['orig-name']
-					]), "\n") . ',';
+					]), "\n");
 				}
 			}
 		}
-		$aMain['set-list'] = rtrim(implode("\n", $aTmp), ',');
+		$aMain['set-list'] = implode("\n", $aTmp);
 
 	// init values
 		$aTmp = array();
@@ -187,7 +183,89 @@ class Generator
 		}
 		$aMain['validators-add'] = implode("", $aTmp);
 
-	// złożenie ostacznej wersji
+	// result
+		return $oTpl->getSubTemplate('main', $aMain);
+	}
+
+	/**
+	 * Return list view
+	 *
+	 * @param	\ScaZF\Tool\Schema\Model	$oModel
+	 * @param	string						$sController
+	 * @return	string
+	 */
+	public function getViewList(\ScaZF\Tool\Schema\Model $oModel, $sController)
+	{
+		$oTpl = \ScaZF\Tool\Base\Template::getTemplate('ViewList');
+		$oModel = new \ScaZF\Tool\Wrapper\Model($oModel);
+		$aModelDesc = $oModel->getDescription();
+
+		$aMain = [
+			'header'	=> '',
+			'content'	=> ''
+		];
+
+	// header
+		$aTmp = array();
+		foreach($aModelDesc['fields'] as $aField)
+		{
+			if($aField['orig-name'] == 'id')
+			{
+				continue;
+			}
+
+			if($aField['type'] == 'TEXT')
+			{
+				$aTmp[] = rtrim($oTpl->getSubTemplate('header-simple', [
+					'name' 		=> $aField['orig-name']
+				]), "\n");
+			}
+			else
+			{
+				$aTmp[] = rtrim($oTpl->getSubTemplate('header-sort', [
+					'name' 		=> $aField['orig-name']
+				]), "\n");
+			}
+		}
+		$aMain['header'] = implode("\n", $aTmp);
+
+	// content
+		$aTmp = array();
+		foreach($oModel->getFields() as $oField)
+		{
+			$oField = new \ScaZF\Tool\Wrapper\Field($oModel, $oField);
+			$aField = $oField->getDescription();
+
+			if($aField['orig-name'] == 'id')
+			{
+				continue;
+			}
+
+			if($oField->isModelType())
+			{
+				if(!$oField->isComponent() && !$oField->isOneToMany())
+				{
+					$aTmp[] = rtrim($oTpl->getSubTemplate('content-simple', [
+						'method' 		=> 'get'. $this->getFieldName($oField). 'Id'
+					]), "\n");
+				}
+			}
+			elseif($aField['field']['type'] == 'TEXT')
+			{
+				$aTmp[] = rtrim($oTpl->getSubTemplate('content-trim', [
+					'method' 		=> 'get'. $this->getFieldName($oField)
+				]), "\n");
+			}
+			else
+			{
+				$aTmp[] = rtrim($oTpl->getSubTemplate('content-simple', [
+					'method' 		=> 'get'. $this->getFieldName($oField)
+				]), "\n");
+			}
+		}
+		$aMain['content'] = implode("\n", $aTmp);
+
+		// result
 		return $oTpl->getSubTemplate('main', $aMain);
 	}
 

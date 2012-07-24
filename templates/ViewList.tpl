@@ -3,7 +3,7 @@
 	<thead>
 		<tr>
 			<td><?php echo $this->sortLink('id') ?></td>
-			{*header*}
+{*header*}
 			<td>actions</td>
 		</tr>
 	</thead>
@@ -12,7 +12,7 @@
 <?php foreach($this->oPaginator as $oItem): ?>
 		<tr>
 			<td><?php echo $oItem->getId() ?></td>
-			{*content*}
+{*content*}
 			<td>
 				<a href="<?php echo $this->getUrl(['id' => $oItem->getId()], 'edit') ?>">edit</a> |
 				<a href="<?php echo $this->getUrl(['id' => $oItem->getId()], 'delete') ?>">del</a>
