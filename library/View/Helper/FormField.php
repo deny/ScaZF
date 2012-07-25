@@ -30,7 +30,7 @@ class Sca_View_Helper_FormField extends Zend_View_Helper_Abstract
 
 		$sResult = '<div'. $this->getAttrs($aOpt['fieldAttr']) . '>';
 
-			$sHtmlLabel .= '<label for="'. $sName .'">'. $sLabel . '</label>';
+			$sHtmlLabel = '<label for="'. $sName .'">'. $sLabel . '</label>';
 
 			if($aOpt['flipLabel'])
 			{

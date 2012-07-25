@@ -2,11 +2,11 @@
 <form method="post" action="">
 <?php if(!$this->bEdit): ?>
 	<fieldset>
-		{*fields-add*}
+{*fields-add*}
 	</fieldset>
 <?php endif; ?>
 	<fieldset>
-		{*fields-edit*}
+{*fields-edit*}
 	</fieldset>
 	<fieldset>
 		<button type="submit">save</button>
@@ -32,9 +32,7 @@
 	<?php $sField = '{*name*}'; echo $this->formField(
 		'{*uc-name*}',
 		$sField,
-		$this->formSelect($sField, $this->formValue($sField), null, array(
-			{*select-list*}
-		))
+		$this->formSelect($sField, $this->formValue($sField), null, {*select-list*})
 	)?>
 {@end=field-select@}
 {@begin=select-list@}

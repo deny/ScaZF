@@ -262,6 +262,105 @@ class Generator
 		return $oTpl->getSubTemplate('main', $aMain);
 	}
 
+	/**
+	 * Return list view
+	 *
+	 * @param	\ScaZF\Tool\Schema\Model	$oModel
+	 * @param	string						$sController
+	 * @return	string
+	 */
+	public function getViewForm(\ScaZF\Tool\Schema\Model $oModel, $sController)
+	{
+		$oTpl = \ScaZF\Tool\Base\Template::getTemplate('ViewForm');
+		$oModel = new \ScaZF\Tool\Wrapper\Model($oModel);
+		$aModelDesc = $oModel->getDescription();
+
+		$aMain = [
+			'fields-add'	=> '',
+			'fields-edit'	=> ''
+		];
+
+		foreach($oModel->getFields() as $oField)
+		{
+			$oField = new \ScaZF\Tool\Wrapper\Field($oModel, $oField);
+			$aField = $oField->getDescription()['field'];
+
+			if($aField['orig-name'] == 'id' || (
+					$oField->isModelType() && ($oField->isComponent() || $oField->isOneToMany())
+				)
+			)
+			{
+				continue;
+			}
+
+			$sFieldName = $this->getFieldName($oField);
+
+			$bAdd = false;
+			$sTemplate = $sSelect = '';
+
+
+			if($oField->isModelType())
+			{
+				$sTemplate = 'field-select';
+				$oTmp = new \ScaZF\Tool\Wrapper\Model(
+					\ScaZF\Tool\Schema\Manager::getInstance()->getModel($oField->getType())
+				);
+
+				$sId = $oTmp->getKey();
+
+				$sSelect =
+					$this->sGlobalNamespace .
+					$oField->getModelType() . 'Factory::getInstance()->getList('.
+						"'$sId', '$sId'".
+					')';
+			}
+			elseif($aField['type'] == 'TEXT')
+			{
+				$sTemplate = 'field-textarea';
+			}
+			elseif($oField->getType() == 'enum')
+			{
+				$sTemplate = 'field-select';
+
+				$aTmp = array();
+				foreach($oField->getTypeAttribs() as $sAttrib)
+				{
+					$aTmp[] = rtrim($oTpl->getSubTemplate('select-list', [
+						'name' 	=> $sAttrib
+					]), "\n");
+				}
+
+				$sSelect = 'array('. "\n" . implode(",\n", $aTmp) . ')';
+			}
+			else
+			{
+				$sTemplate = 'field-text';
+			}
+
+			$sField = '';
+			if($sTemplate == 'field-select')
+			{
+				$sField = $aTmp[] = $oTpl->getSubTemplate($sTemplate, [
+					'name' 			=> $oField->getName(),
+					'uc-name' 		=> ucfirst($oField->getName()),
+					'select-list'	=> $sSelect
+				]);
+			}
+			else
+			{
+				$sField = $aTmp[] = $oTpl->getSubTemplate($sTemplate, [
+					'name' 			=> $oField->getName(),
+					'uc-name' 		=> ucfirst($oField->getName())
+				]);
+			}
+
+			 $aMain['fields-edit'] .= $sField;
+		}
+
+		// result
+		return $oTpl->getSubTemplate('main', $aMain);
+	}
+
 // OTHER METHODS
 
 	/**
