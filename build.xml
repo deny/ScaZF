@@ -1,17 +1,33 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<project name="scazf" basedir="" default="help">
+<project name="scazf" basedir="." default="help">
+
+	<!-- ============================================  -->
+    <!-- Target: help 	                               -->
+    <!-- ============================================  -->
+	<target name="help" description="show this help">
+		<exec command="phing -p -q" dir="${project.basedir}" escape="true" outputProperty="output"/>
+		<echo msg="${line.separator}${output}" />
+	</target>
+
+	<!-- ============================================  -->
+    <!-- Import: other targets 	                       -->
+    <!-- ============================================  -->
+	<import file="./phing/init.xml" />
+	<import file="./phing/build-sql.xml" />
+	<import file="./phing/build-models.xml" />
+	<import file="./phing/build-crud.xml" />
 
 	<php function="dirname" returnProperty="scazf.dir">
 		<param value="${phing.file.skazf}"/>
 	</php>
 
-	<!-- load configuration -->
-	<property file="${scazf.dir}/config/scazf.config" />
+	<!--<property file="${scazf.dir}/config/scazf.config" />-->
 
-	<target name="help">
-		<echo msg="ScaZF options:" />
-		<echo msg="" />
-	</target>
+	<!--<php function="package" returnProperty="res">
+		<echo msg="package name: " />
+		<param value="asd" />
+	</php>-->
+
 
 </project>

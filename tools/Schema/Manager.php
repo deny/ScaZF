@@ -32,13 +32,6 @@ class Manager
 	protected $sSchemaPath = '.';
 
 	/**
-	 * Path to XML Schema
-	 *
-	 * @var	string
-	 */
-	protected $sXsdPath = '.';
-
-	/**
 	 * Default Package
 	 *
 	 * @var	string
@@ -56,13 +49,11 @@ class Manager
 	 * Load schema from file (check XML and creates model descriptions)
 	 *
 	 * @param	string	$sSchemaPath	path to model description
-	 * @param	string	$sXsdPath		path to XSD file
 	 * @return	void
 	 */
-	public function init($sSchemaPath, $sXsdPath)
+	public function init($sSchemaPath)
 	{
 		$this->sSchemaPath = $sSchemaPath;
-		$this->sXsdPath = $sXsdPath;
 	}
 
 	/**
@@ -137,13 +128,6 @@ class Manager
 			{
 				throw new Exception('Description for package "'. $sName . '" doesn\'t exists');
 			}
-
-		// check XML Schema
-		$this->scream('Validate XML structure', 1);
-			//if(($sError = Reader::schemaValidate($sFilePath, $this->sXsdPath)) !== false)
-			//{
-			//	throw new Exception('Wrong description for package '. $sName . ': ' . $sError);
-			//}
 
 		// parse schema and create objects
 			$oReader = new Reader();
