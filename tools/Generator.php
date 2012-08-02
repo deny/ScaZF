@@ -40,7 +40,6 @@ require_once 'Crud/Generator.php';
 
 class Generator
 {
-	use \ScaZF\Tool\Base\Singleton;
 	use \ScaZF\Tool\Base\Screamer\ClassTrait;
 
 // PATHS
@@ -82,6 +81,13 @@ class Generator
 // FLAGS
 
 	/**
+	 * Is prepare run
+	 *
+	 * @var	bool
+	 */
+	protected $bPrepare = false;
+
+	/**
 	 * Is Validate Run
 	 *
 	 * @var bool
@@ -110,6 +116,8 @@ class Generator
 		$this->sSqlPath = $sSqlPath;
 		$this->sModelPath = $sModelPath;
 		$this->sCrudPath = $sCrudPath;
+
+		\ScaZF\Tool\Base\Template::setTemplatesPath(realpath(dirname(__FILE__) . '/../templates'));
 	}
 
 	/**
@@ -120,11 +128,14 @@ class Generator
 	 */
 	protected function prepare($sPackage)
 	{
-		$this->oManager = \ScaZF\Tool\Schema\Manager::getInstance();
-		$this->oManager->init($this->sSchemaPath);
-
-		$this->oManager->setDefaultPackage($sPackage);
-		$this->oManager->loadPackage($sPackage);
+		if(!$this->bPrepare)
+		{
+			$this->oManager = \ScaZF\Tool\Schema\Manager::getInstance();
+			$this->oManager->init($this->sSchemaPath);
+			$this->oManager->setDefaultPackage($sPackage);
+			$this->oManager->loadPackage($sPackage);
+			$this->bPrepare = true;
+		}
 	}
 
 	/**
@@ -135,13 +146,14 @@ class Generator
 	 */
 	public function validate($sPackage)
 	{
+		$this->prepare($sPackage);
 		if($this->bValidate)
 		{
 			return $this->bValid;
 		}
 
 		$oValidator = new \ScaZF\Tool\Validator\Schema();
-		if($oValidator->isValid($oManager->getPackage($sPackage)))
+		if($oValidator->isValid($this->oManager->getPackage($sPackage)))
 		{
 			$this->bValid = true;
 		}
@@ -163,12 +175,13 @@ class Generator
 	 */
 	public function sql($sPackage)
 	{
+		$this->prepare($sPackage);
 		if($this->validate($sPackage))
 		{
 			try
 			{
 				$this->checkDir($this->sSqlPath);
-				$sFile = $this->sSqlPath .'/'. $sPackage .'sql';
+				$sFile = $this->sSqlPath .'/'. $sPackage .'.sql';
 
 				$oGen = new \ScaZF\Tool\Db\Generator();
 				file_put_contents($sFile, $oGen->getSql($this->oManager->getPackage($sPackage)));
@@ -190,6 +203,7 @@ class Generator
 	 */
 	public function modelBase($sPackage, $sModel = null)
 	{
+		$this->prepare($sPackage);
 		if($this->validate($sPackage))
 		{
 			try
@@ -202,7 +216,7 @@ class Generator
 				if(isset($sModel))
 				{
 					$aModels = array(
-						$this->oManager->getPackage($sPackage)->getModel($sPackage)
+						$this->oManager->getPackage($sPackage)->getModel($sModel)
 					);
 				}
 				else
@@ -212,6 +226,7 @@ class Generator
 
 				foreach($aModels as $oModel)
 				{
+
 					// BASE model
 						file_put_contents($sPath .'/'. $oModel->getName() . '.php', $oGen->getModelBase($oModel));
 
@@ -236,6 +251,7 @@ class Generator
 	 */
 	public function model($sPackage, $sModel = null)
 	{
+		$this->prepare($sPackage);
 		if($this->validate($sPackage))
 		{
 			try
@@ -248,7 +264,7 @@ class Generator
 				if(isset($sModel))
 				{
 					$aModels = array(
-						$this->oManager->getPackage($sPackage)->getModel($sPackage)
+						$this->oManager->getPackage($sPackage)->getModel($sModel)
 					);
 				}
 				else
@@ -282,6 +298,7 @@ class Generator
 	 */
 	public function crud($sPackage, $sModel = null)
 	{
+		$this->prepare($sPackage);
 		if($this->validate($sPackage))
 		{
 			try
@@ -291,7 +308,7 @@ class Generator
 				if(isset($sModel))
 				{
 					$aModels = array(
-						$this->oManager->getPackage($sPackage)->getModel($sPackage)
+						$this->oManager->getPackage($sPackage)->getModel($sModel)
 					);
 				}
 				else
@@ -301,6 +318,8 @@ class Generator
 
 				$fHandle = fopen ("php://stdin","r");
 				$sPath = $this->sCrudPath;
+
+				echo  'Module (empty): ';
 
 				$sModule = trim(fgets($fHandle));
 
@@ -318,11 +337,13 @@ class Generator
 
 				foreach($aModels as $oModel)
 				{
-					echo 'Get controller name for '. $oModel->getName() . ':';
+					echo 'Controller name for '. $oModel->getName() . ': ';
 					$sController = ucfirst(trim(fgets($fHandle)));
 
 					$sFileC = $sPathC .'/'. $sController . 'Controller.php';
 					$sFileV = $sPathV . '/'. strtolower($sController);
+
+					$this->checkDir($sFileV);
 
 					file_put_contents($sFileC, $oGen->getController($oModel, $sController));
 					file_put_contents($sFileV .'/list.phtml', $oGen->getViewList($oModel, $sController));
@@ -343,11 +364,15 @@ class Generator
 	 * @param	string	$sPath path to test
 	 * @return	void
 	 */
-	protected function checkDir($sPath)
+	protected function checkDir(&$sPath)
 	{
+		echo "\n". 'check '. $sPath . "\n";
 		if(!file_exists($sPath))
 		{
-			mkdir($sPath, 755, true);
+			echo "\n" . 'create '. $sPath . "\n";
+			mkdir($sPath, 0755, true);
 		}
+
+		$sPath = realpath($sPath);
 	}
 }
