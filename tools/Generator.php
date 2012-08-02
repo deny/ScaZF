@@ -59,6 +59,13 @@ class Generator
 	protected $oManager;
 
 	/**
+	 * Path to sql files
+	 *
+	 * @var string
+	 */
+	protected $sSqlPath;
+
+	/**
 	 * Path to controllers/modules
 	 *
 	 * @var string
@@ -82,18 +89,27 @@ class Generator
 	protected $bValidate = false;
 
 	/**
+	 * Is schema valid
+	 *
+	 * @var	bool
+	 */
+	protected $bValid = false;
+
+	/**
 	 * Constructor
 	 *
 	 * @param	string	$sSchemaPath	path to XML schema
-	 * @param	string	$sCrudPath		path to crud
+	 * @param	string	$sSqlPath		path to sql files
 	 * @param	string	$sModelPath		path to models
+	 * @param	string	$sCrudPath		path to crud
 	 * @return 	Generator
 	 */
-	public function __construct($sSchemaPath, $sCrudPath, $sModelPath)
+	public function __construct($sSchemaPath, $sSqlPath, $sModelPath, $sCrudPath)
 	{
 		$this->sSchemaPath = $sSchemaPath;
-		$this->sCrudPath = $sCrudPath;
+		$this->sSqlPath = $sSqlPath;
 		$this->sModelPath = $sModelPath;
+		$this->sCrudPath = $sCrudPath;
 	}
 
 	/**
@@ -121,18 +137,140 @@ class Generator
 	{
 		if($this->bValidate)
 		{
-			return true;
+			return $this->bValid;
 		}
 
 		$oValidator = new \ScaZF\Tool\Validator\Schema();
-		if(!$oValidator->isValid($oManager->getPackage($sPackage)))
+		if($oValidator->isValid($oManager->getPackage($sPackage)))
+		{
+			$this->bValid = true;
+		}
+		else
 		{
 			\ScaZF\Tool\Base\Screamer\Screamer::getInstance()->screamErrors($oValidator);
-			return false;
+			$this->bValid = false;
 		}
 
 		$this->bValidate = true;
-		return true;
+		return $this->bValid;
+	}
+
+	/**
+	 * Generate SQL
+	 *
+	 * @param	string	$sPackage	package name
+	 * @return	void
+	 */
+	public function sql($sPackage)
+	{
+		if($this->validate($sPackage))
+		{
+			try
+			{
+				$this->checkDir($this->sSqlPath);
+				$sFile = $this->sSqlPath .'/'. $sPackage .'sql';
+
+				$oGen = new \ScaZF\Tool\Db\Generator();
+				file_put_contents($sFile, $oGen->getSql($this->oManager->getPackage($sPackage)));
+			}
+			catch(\ScaZF\Tool\Schema\Exception $oExc)
+			{
+				echo "\n\nERROR:\n". $oExc->getMessage() ."\n\n";
+				echo $oExc->getTraceAsString() . "\n\n";
+			}
+		}
+	}
+
+	/**
+	 * Generate Model Base
+	 *
+	 * @param	string	$sPackage	package name
+	 * @param	string	$sModel		model name
+	 * @return	void
+	 */
+	public function modelBase($sPackage, $sModel = null)
+	{
+		if($this->validate($sPackage))
+		{
+			try
+			{
+				$sPath = $this->sModelPath .'/'. $sPackage .'/Base';
+				$this->checkDir($sPath);
+
+				$oGen = new \ScaZF\Tool\Model\Generator();
+
+				if(isset($sModel))
+				{
+					$aModels = array(
+						$this->oManager->getPackage($sPackage)->getModel($sPackage)
+					);
+				}
+				else
+				{
+					$aModels = $this->oManager->getPackage($sPackage)->getModels();
+				}
+
+				foreach($aModels as $oModel)
+				{
+					// BASE model
+						file_put_contents($sPath .'/'. $oModel->getName() . '.php', $oGen->getModelBase($oModel));
+
+					// BASE factory
+						file_put_contents($sPath .'/'. $oModel->getName() . 'Factory.php', $oGen->getFactoryBase($oModel));
+				}
+			}
+			catch(\ScaZF\Tool\Schema\Exception $oExc)
+			{
+				echo "\n\nERROR:\n". $oExc->getMessage() ."\n\n";
+				echo $oExc->getTraceAsString() . "\n\n";
+			}
+		}
+	}
+
+	/**
+	 * Generate Model
+	 *
+	 * @param	string	$sPackage	package name
+	 * @param	string	$sModel		model name
+	 * @return	void
+	 */
+	public function model($sPackage, $sModel = null)
+	{
+		if($this->validate($sPackage))
+		{
+			try
+			{
+				$sPath = $this->sModelPath .'/'. $sPackage .'/Base';
+				$this->checkDir($sPath);
+
+				$oGen = new \ScaZF\Tool\Model\Generator();
+
+				if(isset($sModel))
+				{
+					$aModels = array(
+						$this->oManager->getPackage($sPackage)->getModel($sPackage)
+					);
+				}
+				else
+				{
+					$aModels = $this->oManager->getPackage($sPackage)->getModels();
+				}
+
+				foreach($aModels as $oModel)
+				{
+					// model
+						file_put_contents($sPath .'/'. $oModel->getName() . '.php', $oGen->getModel($oModel));
+
+					// factory
+						file_put_contents($sPath .'/'. $oModel->getName() . 'Factory.php', $oGen->getFactory($oModel));
+				}
+			}
+			catch(\ScaZF\Tool\Schema\Exception $oExc)
+			{
+				echo "\n\nERROR:\n". $oExc->getMessage() ."\n\n";
+				echo $oExc->getTraceAsString() . "\n\n";
+			}
+		}
 	}
 
 	/**
@@ -146,25 +284,70 @@ class Generator
 	{
 		if($this->validate($sPackage))
 		{
-			$oGen = new \ScaZF\Tool\Crud\Generator();
+			try
+			{
+				$oGen = new \ScaZF\Tool\Crud\Generator();
 
-			if(isset($sModel))
-			{
-				$aModels = array(
-					$this->oManager->getPackage($sPackage)->getModel($sPackage)
-				);
-			}
-			else
-			{
-				$aModels = $this->oManager->getPackage($sPackage)->getModels();
-			}
+				if(isset($sModel))
+				{
+					$aModels = array(
+						$this->oManager->getPackage($sPackage)->getModel($sPackage)
+					);
+				}
+				else
+				{
+					$aModels = $this->oManager->getPackage($sPackage)->getModels();
+				}
 
-			foreach($aModels as $oModel)
-			{
-				$oGen->getController($oModel, $Controller);
-				$oGen->getViewList($oModel, $sController);
-				$oGen->getViewForm($oModel, $sController);
+				$fHandle = fopen ("php://stdin","r");
+				$sPath = $this->sCrudPath;
+
+				$sModule = trim(fgets($fHandle));
+
+				if(!empty($sModule))
+				{
+					$sPath .= '/'. $sModule;
+				}
+				$this->checkDir($sPath);
+
+				$sPathC = $sPath . '/controllers';
+				$this->checkDir($sPathC);
+
+				$sPathV = $sPath . '/views/scripts';
+				$this->checkDir($sPathV);
+
+				foreach($aModels as $oModel)
+				{
+					echo 'Get controller name for '. $oModel->getName() . ':';
+					$sController = ucfirst(trim(fgets($fHandle)));
+
+					$sFileC = $sPathC .'/'. $sController . 'Controller.php';
+					$sFileV = $sPathV . '/'. strtolower($sController);
+
+					file_put_contents($sFileC, $oGen->getController($oModel, $sController));
+					file_put_contents($sFileV .'/list.phtml', $oGen->getViewList($oModel, $sController));
+					file_put_contents($sFileV . '/form.phtml', $oGen->getViewForm($oModel, $sController));
+				}
 			}
+			catch(\ScaZF\Tool\Schema\Exception $oExc)
+			{
+				echo "\n\nERROR:\n". $oExc->getMessage() ."\n\n";
+				echo $oExc->getTraceAsString() . "\n\n";
+			}
+		}
+	}
+
+	/**
+	 * Check path and create folders if needed
+	 *
+	 * @param	string	$sPath path to test
+	 * @return	void
+	 */
+	protected function checkDir($sPath)
+	{
+		if(!file_exists($sPath))
+		{
+			mkdir($sPath, 755, true);
 		}
 	}
 }

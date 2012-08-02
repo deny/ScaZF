@@ -279,6 +279,54 @@ class Generator
 	}
 
 	/**
+	 * Return PHP model
+	 *
+	 * @param	\ScaZF\Tool\Wrapper\Model $oModel	model description
+	 * @return	string
+	 */
+	public function getModel(\ScaZF\Tool\Schema\Model $oModel)
+	{
+		$oTpl = \ScaZF\Tool\Base\Template::getTemplate('Model');
+		$oModel = new \ScaZF\Tool\Wrapper\Model($oModel);
+
+	// prepare main definition
+		$aModel = [
+			'namespace'		=> ltrim($this->sGlobalNamespace .'\\'. $oModel->getPackage() . '\\Base', '\\'),
+			'model-name'	=> $oModel->getName(),
+			'model-extends'	=> '',
+			'consts'		=> ''
+		];
+
+	// extends
+		if($oModel->hasExtends())
+		{
+			$aModel['model-extends'] = $oTpl->getSubTemplate('model-extends', [
+				'model-name' => $oModel->getName()
+			]);
+		}
+
+	// consts
+		foreach($oModel->getFields() as $oField)
+		{
+			$oField = new \ScaZF\Tool\Wrapper\Field($oModel, $oField);
+
+			if($oField->getType() == 'enum')
+			{
+				foreach($oField->getTypeAttribs() as $sAttr)
+				{
+					$aModel['consts'] .= $oTpl->getSubTemplate('const', [
+						'name'		=> strtoupper($oField->getName() .'_'. $sAttr),
+						'value'		=> $sAttr
+					]);
+				}
+				$aModel['consts'] .= "\n";
+			}
+		}
+
+		return $oTpl->getSubTemplate('main', $aModel);
+	}
+
+	/**
 	 * Return PHP base factory
 	 *
 	 * @param	\ScaZF\Tool\Wrapper\Model $oModel	model description
@@ -506,6 +554,35 @@ class Generator
 		}
 
 		return $oTpl->getSubTemplate('main', $aFactory);
+	}
+
+	/**
+	 * Return PHP model
+	 *
+	 * @param	\ScaZF\Tool\Wrapper\Model $oModel	model description
+	 * @return	string
+	 */
+	public function getFactory(\ScaZF\Tool\Schema\Model $oModel)
+	{
+		$oTpl = \ScaZF\Tool\Base\Template::getTemplate('Model');
+		$oModel = new \ScaZF\Tool\Wrapper\Model($oModel);
+
+	// prepare main definition
+		$aModel = [
+			'namespace'		=> ltrim($this->sGlobalNamespace .'\\'. $oModel->getPackage() . '\\Base', '\\'),
+			'model-name'	=> $oModel->getName(),
+			'model-extends'	=> ''
+		];
+
+	// extends
+		if($oModel->hasExtends())
+		{
+			$aModel['model-extends'] = $oTpl->getSubTemplate('model-extends', [
+				'model-name' => $oModel->getName()
+			]);
+		}
+
+		return $oTpl->getSubTemplate('main', $aModel);
 	}
 
 // OTHER METHODS
