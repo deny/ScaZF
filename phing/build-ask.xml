@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project>
+	<target name="build.ask" description="get package and model name">
+		<propertyprompt
+			propertyName="package"
+			promptText="Package name"
+		/>
+
+		<propertyprompt
+			propertyName="model"
+			promptText="Model name (could be empty for all package)"
+		/>
+
+		<gen-init
+			schemaPath="${schemaPath}"
+			controllersPath="${controllersPath}"
+			modelsPath="${modelsPath}"
+			sqlPath="${sqlPath}"
+			package="${package}"
+			model="${model}"
+		/>
+	</target>
+</project>

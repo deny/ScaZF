@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <project>
-	<target name="build.sql" description="build sql files">
+	<target name="build.all" description="build CRUD controllers">
 		<phingcall target="build.ask" />
-		<gen-run action="sql"/>
+		<gen-run action="all" />
 	</target>
 </project>

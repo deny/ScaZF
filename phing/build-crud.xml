@@ -2,6 +2,7 @@
 
 <project>
 	<target name="build.crud" description="build CRUD controllers">
-		<echo msg="sql" />
+		<phingcall target="build.ask" />
+		<gen-run action="crud" />
 	</target>
 </project>

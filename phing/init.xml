@@ -1,7 +1,34 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <project>
+
+	<taskdef name="sca-init" classname="Init" classpath="./phing" />
+
 	<target name="init" description="initialize ScaZF tools">
-		<echo msg="Init ScaZF" />
+		<echo>Init ScaZF</echo>
+
+		<propertyprompt
+			propertyName="schema"
+			promptText="Path to Schema XML"
+		/>
+		<propertyprompt
+			propertyName="controllers"
+			promptText="Path to Modules/Controllers"
+		/>
+		<propertyprompt
+			propertyName="models"
+			promptText="Path to Models"
+		/>
+		<propertyprompt
+			propertyName="sql"
+			promptText="Path to SQL files"
+		/>
+
+		<echo file="./config/scazf.config" append="false">
+schemaPath=${schema}
+controllersPath=${controllers}
+modelsPath=${models}
+sqlPath=${sql}
+		</echo>
 	</target>
 </project>

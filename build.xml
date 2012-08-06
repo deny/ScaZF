@@ -11,18 +11,32 @@
 	</target>
 
 	<!-- ============================================  -->
-    <!-- Import: other targets 	                       -->
-    <!-- ============================================  -->
+	<!-- Import: other targets 	                       -->
+	<!-- ============================================  -->
 	<import file="./phing/init.xml" />
-	<import file="./phing/build-sql.xml" />
-	<import file="./phing/build-models.xml" />
-	<import file="./phing/build-crud.xml" />
 
-	<php function="dirname" returnProperty="scazf.dir">
-		<param value="${phing.file.skazf}"/>
-	</php>
+	<if>
+		<available file="./config/scazf.config" />
+		<then>
+			<property file="./config/scazf.config" />
 
-	<!--<property file="${scazf.dir}/config/scazf.config" />-->
+			<taskdef name="gen-init" classname="Init" classpath="./phing/php" />
+			<taskdef name="gen-run" classname="Generator" classpath="./phing/php" />
+
+			<import file="./phing/build-ask.xml" />
+			<import file="./phing/build-sql.xml" />
+			<import file="./phing/build-models.xml" />
+			<import file="./phing/build-crud.xml" />
+			<import file="./phing/build-all.xml" />
+		</then>
+		<else>
+			<echo>No config file. Run "init" task</echo>
+		</else>
+	</if>
+
+
+
+
 
 	<!--<php function="package" returnProperty="res">
 		<echo msg="package name: " />
