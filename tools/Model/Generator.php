@@ -564,7 +564,7 @@ class Generator
 	 */
 	public function getFactory(\ScaZF\Tool\Schema\Model $oModel)
 	{
-		$oTpl = \ScaZF\Tool\Base\Template::getTemplate('Model');
+		$oTpl = \ScaZF\Tool\Base\Template::getTemplate('Factory');
 		$oModel = new \ScaZF\Tool\Wrapper\Model($oModel);
 
 	// prepare main definition

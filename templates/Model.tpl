@@ -10,12 +10,12 @@ class {*model-name*} {*model-extends*}
 {
 	use Base\{*model-name*};
 
-	{*consts*}
+{*consts*}
 }
 {@end=main@}
 {@begin=model-extends@}
 	extends {*model-name*}
 {@end=model-extends@}
 {@begin=const@}
-	 CONST {*name*} = '{*value*}';
+	const {*name*} = '{*value*}';
 {@end=const@}

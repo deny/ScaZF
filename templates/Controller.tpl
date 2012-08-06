@@ -18,7 +18,7 @@ class {*controller*}Controller extends Sca_Controller_Action
 	public function init()
 	{
 		$this->prepareController(
-			'{*controller*}',
+			'{*controller-url*}',
 			{*model*}Factory::getInstance(),
 			10
 		);

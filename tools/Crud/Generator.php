@@ -28,14 +28,15 @@ class Generator
 	 * @param	\ScaZF\Tool\Wrapper\Model $oModel	model description
 	 * @return	string
 	 */
-	public function getController(\ScaZF\Tool\Schema\Model $oModel, $sController)
+	public function getController(\ScaZF\Tool\Schema\Model $oModel, $sController, $sModule)
 	{
 		$oTpl = \ScaZF\Tool\Base\Template::getTemplate('Controller');
 		$oModel = new \ScaZF\Tool\Wrapper\Model($oModel);
 		$aModelDesc = $oModel->getDescription();
 
 		$aMain = [
-			'controller'		=> $sController,
+			'controller'		=> empty($sModule) ? $sController : $sModule . '_'. $sController,
+			'controller-url'	=> empty($sModule) ? $sController : $sModule . '/'. $sController,
 			'sort-types'		=> '',
 			'model'				=> '',
 			'create-list'		=> '',

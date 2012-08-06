@@ -130,6 +130,8 @@ class Generator
 	{
 		if(!$this->bPrepare)
 		{
+			$this->scream('Prepare data' . "\n");
+
 			$this->oManager = \ScaZF\Tool\Schema\Manager::getInstance();
 			$this->oManager->init($this->sSchemaPath);
 			$this->oManager->setDefaultPackage($sPackage);
@@ -151,6 +153,8 @@ class Generator
 		{
 			return $this->bValid;
 		}
+
+		$this->scream('Validate data' . "\n");
 
 		$oValidator = new \ScaZF\Tool\Validator\Schema();
 		if($oValidator->isValid($this->oManager->getPackage($sPackage)))
@@ -178,6 +182,8 @@ class Generator
 		$this->prepare($sPackage);
 		if($this->validate($sPackage))
 		{
+			$this->scream('SQL Generate' . "\n");
+
 			try
 			{
 				$this->checkDir($this->sSqlPath);
@@ -206,6 +212,8 @@ class Generator
 		$this->prepare($sPackage);
 		if($this->validate($sPackage))
 		{
+			$this->scream('Model Base generate' . "\n");
+
 			try
 			{
 				$sPath = $this->sModelPath .'/'. $sPackage .'/Base';
@@ -256,7 +264,9 @@ class Generator
 		{
 			try
 			{
-				$sPath = $this->sModelPath .'/'. $sPackage .'/Base';
+				$this->scream('Model generate' . "\n");
+
+				$sPath = $this->sModelPath .'/'. $sPackage;
 				$this->checkDir($sPath);
 
 				$oGen = new \ScaZF\Tool\Model\Generator();
@@ -301,6 +311,8 @@ class Generator
 		$this->prepare($sPackage);
 		if($this->validate($sPackage))
 		{
+			$this->scream('Crud generate' . "\n");
+
 			try
 			{
 				$oGen = new \ScaZF\Tool\Crud\Generator();
@@ -345,9 +357,9 @@ class Generator
 
 					$this->checkDir($sFileV);
 
-					file_put_contents($sFileC, $oGen->getController($oModel, $sController));
-					file_put_contents($sFileV .'/list.phtml', $oGen->getViewList($oModel, $sController));
-					file_put_contents($sFileV . '/form.phtml', $oGen->getViewForm($oModel, $sController));
+					file_put_contents($sFileC, $oGen->getController($oModel, $sController, $sModule));
+					file_put_contents($sFileV .'/list.phtml', $oGen->getViewList($oModel, $sController, $sModule));
+					file_put_contents($sFileV . '/form.phtml', $oGen->getViewForm($oModel, $sController, $sModule));
 				}
 			}
 			catch(\ScaZF\Tool\Schema\Exception $oExc)
@@ -366,10 +378,8 @@ class Generator
 	 */
 	protected function checkDir(&$sPath)
 	{
-		echo "\n". 'check '. $sPath . "\n";
 		if(!file_exists($sPath))
 		{
-			echo "\n" . 'create '. $sPath . "\n";
 			mkdir($sPath, 0755, true);
 		}
 
