@@ -34,14 +34,4 @@
 		</else>
 	</if>
 
-
-
-
-
-	<!--<php function="package" returnProperty="res">
-		<echo msg="package name: " />
-		<param value="asd" />
-	</php>-->
-
-
 </project>

@@ -2,7 +2,7 @@
 
 <project>
 
-	<taskdef name="sca-init" classname="Init" classpath="./phing" />
+	<taskdef name="sca-init" classname="Init" classpath="./phing/php" />
 
 	<target name="init" description="initialize ScaZF tools">
 		<echo>Init ScaZF</echo>
