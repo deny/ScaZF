@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <project>
-	<target name="build.all" description="build CRUD controllers">
+	<target name="build.all" description="build all elements (sql, models, crud)">
 		<phingcall target="build.ask" />
 		<gen-run action="all" />
 	</target>

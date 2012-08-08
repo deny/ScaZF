@@ -291,7 +291,7 @@ class Generator
 
 	// prepare main definition
 		$aModel = [
-			'namespace'		=> ltrim($this->sGlobalNamespace .'\\'. $oModel->getPackage() . '\\Base', '\\'),
+			'namespace'		=> ltrim($this->sGlobalNamespace .'\\'. $oModel->getPackage(), '\\'),
 			'model-name'	=> $oModel->getName(),
 			'model-extends'	=> '',
 			'consts'		=> ''
@@ -300,9 +300,15 @@ class Generator
 	// extends
 		if($oModel->hasExtends())
 		{
-			$aModel['model-extends'] = $oTpl->getSubTemplate('model-extends', [
+			$aModel['model-extends'] = trim($oTpl->getSubTemplate('model-extends', [
 				'model-name' => $oModel->getName()
-			]);
+			]));
+		}
+		else
+		{
+			$aModel['model-extends'] = trim($oTpl->getSubTemplate('model-extends', [
+				'model-name' => '\Sca\DataObject\Element'
+			]));
 		}
 
 	// consts
@@ -569,7 +575,7 @@ class Generator
 
 	// prepare main definition
 		$aModel = [
-			'namespace'		=> ltrim($this->sGlobalNamespace .'\\'. $oModel->getPackage() . '\\Base', '\\'),
+			'namespace'		=> ltrim($this->sGlobalNamespace .'\\'. $oModel->getPackage(), '\\'),
 			'model-name'	=> $oModel->getName(),
 			'model-extends'	=> ''
 		];
@@ -577,9 +583,15 @@ class Generator
 	// extends
 		if($oModel->hasExtends())
 		{
-			$aModel['model-extends'] = $oTpl->getSubTemplate('model-extends', [
+			$aModel['model-extends'] = trim($oTpl->getSubTemplate('model-extends', [
 				'model-name' => $oModel->getName()
-			]);
+			]));
+		}
+		else
+		{
+			$aModel['model-extends'] = trim($oTpl->getSubTemplate('model-extends', [
+				'model-name' => '\Sca\DataObject\\'
+			]));
 		}
 
 		return $oTpl->getSubTemplate('main', $aModel);

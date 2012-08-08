@@ -3,15 +3,15 @@
 <project>
 	<target name="build.models-all" description="build all model elements">
 		<phingcall target="build.ask" />
-		<gen-run action="models-base" />
-		<gen-run action="models" />
+		<gen-run action="model-base" />
+		<gen-run action="model" />
 	</target>
 	<target name="build.models-base" description="build base model">
 		<phingcall target="build.ask" />
-		<gen-run action="models-base" />
+		<gen-run action="model-base" />
 	</target>
 	<target name="build.models" description="build model">
 		<phingcall target="build.ask" />
-		<gen-run action="models" />
+		<gen-run action="model" />
 	</target>
 </project>
