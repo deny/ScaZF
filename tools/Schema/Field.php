@@ -48,31 +48,15 @@ class Field
 	protected $sDefault;
 
 	/**
-	 * Field options
-	 *
-	 * @var	array
-	 */
-	protected $aOptions;
-
-	/**
-	 * Field validators
-	 *
-	 * @var	array
-	 */
-	protected $aValidators;
-
-	/**
 	 * Constructor
 	 *
 	 * @param	string		$sName			field name
 	 * @param	string		$sType			field type
 	 * @param	string		$sAccess		access definition
 	 * @param	string		$sDefault		default value
-	 * @param	string		$sOptions		field options
-	 * @param	string		$sValidators	field options
 	 * @return	\ScaZF\Tool\Schema\Field
 	 */
-	public function __construct($sName, $sType, $sAccess, $sDefault, $sOptions, $sValidators)
+	public function __construct($sName, $sType, $sAccess, $sDefault)
 	{
 		$aMatches = null;
 		preg_match('/^([a-zA-Z:]+)(\([0-9a-zA-Z, \*]+\))?/', $sType, $aMatches);
@@ -84,8 +68,6 @@ class Field
 
 		$this->aAccess = empty($sAccess) ? array('get','set') : explode(',', $sAccess);
 		$this->sDefault = $sDefault;
-		$this->aOptions = empty($sOptions) ? array() : explode(',', $sOptions);
-		$this->aValidators = empty($sValidators) ? array() : explode(',', $sValidators);
 	}
 
 // GETTERS
@@ -118,16 +100,6 @@ class Field
 	public function getName()
 	{
 		return $this->sName;
-	}
-
-	/**
-	 * Return field options
-	 *
-	 * @return	array
-	 */
-	public function getOptions()
-	{
-		return $this->aOptions;
 	}
 
 	/**
@@ -178,16 +150,6 @@ class Field
 	public function getTypeAttrCount()
 	{
 		return count($this->aTypeAttr);
-	}
-
-	/**
-	 * Return field validators
-	 *
-	 * @return	array
-	 */
-	public function getValidators()
-	{
-		return $this->aValidators;
 	}
 
 	/**

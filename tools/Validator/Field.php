@@ -81,14 +81,5 @@ class Field extends ValidatorAbstract
 				$this->error(self::WRONG_ACCESS, $sAccess);
 			}
 		}
-
-	// options
-		foreach($oField->getOptions() as $sOption)
-		{
-			if(!in_array($sAccess, array('unsigned', 'unique', 'index', 'null')))
-			{
-				$this->error(self::WRONG_OPTIONS, $sOption);
-			}
-		}
 	}
 }

@@ -226,9 +226,7 @@ class Manager
 				$oReader->getAttribute('name'),
 				$oReader->getAttribute('type'),
 				$oReader->getAttribute('access'),
-				$oReader->getAttribute('default'),
-				$oReader->getAttribute('options'),
-				$oReader->getAttribute('validate')
+				$oReader->getAttribute('default')
 			);
 
 		}

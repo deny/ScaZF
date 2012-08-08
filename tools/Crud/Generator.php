@@ -67,9 +67,12 @@ class Generator
 		$aTmp = array();
 		foreach($aModelDesc['fields'] as $aField)
 		{
-			$aTmp[] = rtrim($oTpl->getSubTemplate('create-list', [
-				'name' 		=> $aField['orig-name']
-			]), "\n") . ',';
+			if($aField['orig-name'] != 'id')
+			{
+				$aTmp[] = rtrim($oTpl->getSubTemplate('create-list', [
+					'name' 		=> $aField['orig-name']
+				]), "\n") . ',';
+			}
 		}
 		$aMain['create-list'] = rtrim(implode("\n", $aTmp), ',');
 
