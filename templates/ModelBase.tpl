@@ -76,7 +76,7 @@ trait {*model-name*}
 			}
 			catch(\Sca\DataObject\Exception $oExc) // no data - create default object
 			{
-				$this->{*p-field-name*} = (new {*field-type*}())->initDefault($this);
+				$this->{*p-field-name*} = (new {*field-type*}())->initComponent($this);
 			}
 		}
 
@@ -168,7 +168,7 @@ trait {*model-name*}
 	 *
 	 * @param	{*owner-type*}	$oOwner	owner
 	 */
-	public function initDefault({*owner-type*} $oOwner)
+	public function initComponent({*owner-type*} $oOwner)
 	{
 		$aComponents = [self::info()];
 		$aTmp = [
@@ -191,7 +191,7 @@ trait {*model-name*}
 		{
 			$this->{*p-field-name*} = $aRow['_{*preload*}'] ?
 									$aRow['_{*preload*}'] :
-									(new {*component-type*}())->initDefault($this);
+									(new {*component-type*}())->initComponent($this);
 		}
 
 {@end=init-component@}
