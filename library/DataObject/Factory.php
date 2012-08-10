@@ -223,7 +223,7 @@ abstract class Factory
 		{
 			return array();
 		}
-		
+
 		$oSelect = $this->getSelect(array($sKey, $sValue), $aOptions);
 
 		if(isset($oWhere))

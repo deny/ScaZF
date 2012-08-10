@@ -25,6 +25,7 @@ class Sca_View_Helper_Paginator extends \Zend_View_Helper_Abstract
 		}
 
 		$aParams = $this->view->aParams;
+		$sResult = '<div class="paginator">';
 
 	// first
 		$aParams['page'] = $oPages->first;
@@ -33,7 +34,7 @@ class Sca_View_Helper_Paginator extends \Zend_View_Helper_Abstract
 		$sResult .= '</'. $sListElement .'>'. $sSep;
 
 	// prev
-		$aParams['page'] = $oPages->prev;
+		$aParams['page'] = isset($oPages->prev) ? $oPages->prev : $oPages->first;
 		$sResult .= '<'. $sListElement. '>';
 			$sResult .= '<a href="'. $this->view->getUrl($aParams) .'">&lt;</a>';
 		$sResult .= '</'. $sListElement .'>'. $sSep;
@@ -60,7 +61,7 @@ class Sca_View_Helper_Paginator extends \Zend_View_Helper_Abstract
 		}
 
 	// next
-		$aParams['page'] = $oPages->next;
+		$aParams['page'] = isset($oPages->next) ? $oPages->next : $oPages->last;
 		$sResult .= '<'. $sListElement. '>';
 			$sResult .= '<a href="'. $this->view->getUrl($aParams) .'">&gt;</a>';
 		$sResult .= '</'. $sListElement .'>'. $sSep;
@@ -70,6 +71,8 @@ class Sca_View_Helper_Paginator extends \Zend_View_Helper_Abstract
 		$sResult .= '<'. $sListElement. '>';
 			$sResult .= '<a href="'. $this->view->getUrl($aParams) .'">&raquo;</a>';
 		$sResult .= '</'. $sListElement .'>'. $sSep;
+
+		$sResult .= '</div>';
 
 		return $sResult;
 	}

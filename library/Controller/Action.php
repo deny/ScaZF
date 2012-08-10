@@ -15,13 +15,6 @@ class Sca_Controller_Action extends \Zend_Controller_Action
 	const MSG_OK 	= 'msg-ok';
 	const MSG_ERROR = 'msg-error';
 
-	/**
-	 * Zalogowany usera
-	 *
-	 * @var	\Model\Users\User
-	 */
-	protected $oCurrentUser;
-
 		/**
 	 * Items per page
 	 *
