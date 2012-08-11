@@ -93,7 +93,9 @@ class Sca_Controller_Action extends \Zend_Controller_Action
 		$oPaginator = $this->oFactory->getPaginator(
 			$iPage,
 			$this->iItemsPerPage,
-			[$sDbSort]
+			[$sDbSort],
+			null,
+			$aOptions
 		);
 
 		if($oPaginator->count() > 0 && $iPage > $oPaginator->count())

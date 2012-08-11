@@ -26,7 +26,7 @@ class Sca_View_Helper_FormField extends Zend_View_Helper_Abstract
 	 */
 	public function formField($sLabel, $sName, $sField, array $aOptions = [])
 	{
-		$aOpt = array_merge_recursive($this->aDefault, $aOptions);
+		$aOpt = $this->getOptions($aOptions);
 
 		$sResult = '<div'. $this->getAttrs($aOpt['fieldAttr']) . '>';
 
@@ -47,6 +47,42 @@ class Sca_View_Helper_FormField extends Zend_View_Helper_Abstract
 		$sResult .= '</div>';
 
 		return $sResult;
+	}
+
+	/**
+	 * Merge default options with received
+	 *
+	 * @param	array	$aOptions	received options
+	 * @return	array
+	 */
+	protected function getOptions($aOptions)
+	{
+		$aResult = [];
+		foreach($this->aDefault as $sKey => $sValue)
+		{
+			$aResult[$sKey] = $this->aDefault[$sKey];
+
+			$bArray = is_array($this->aDefault[$sKey]);
+			if(array_key_exists($sKey, $aOptions))
+			{
+				if($bArray && is_array($aOptions[$sKey]))
+				{
+					foreach($sValue as $sSubKey => $sSubVal)
+					{
+						if(array_key_exists($sSubKey, $aOptions[$sKey]))
+						{
+							$aResult[$sKey][$sSubKey] = $aOptions[$sKey][$sSubKey];
+						}
+					}
+				}
+				elseif(!$bArray)
+				{
+					$aResult[$sKey] = $aOptions[$sKey];
+				}
+			}
+		}
+
+		return $aResult;
 	}
 
 	/**
