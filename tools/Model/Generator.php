@@ -104,9 +104,18 @@ class Generator
 						]);
 					}
 
+					if($oField->isOneToMany())
+					{
+						$sFieldPName = $this->getFieldPName($oField, 'a');
+					}
+					else
+					{
+						$sFieldPName = $this->getFieldPName($oField);
+					}
+
 					$aInit['init-preload'] .= $oTpl->getSubTemplate('init-preload', [
 						'preload'		=> $oField->getName(),
-						'p-field-name'	=> $this->getFieldPName($oField)
+						'p-field-name'	=> $sFieldPName
 					]);
 				}
 			}
@@ -210,7 +219,7 @@ class Generator
 							'access'		=> $sAccess,
 							'model-name'	=> $oModel->getName(),
 							'field-name'	=> $this->getFieldName($oField),
-							'p-field-name'	=> $this->getFieldPName($oField),
+							'p-field-name'	=> $this->getFieldPName($oField, 'a'),
 							'field-type'	=> $this->getFieldType($oField),
 						]);
 					}
