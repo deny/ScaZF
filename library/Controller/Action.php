@@ -88,13 +88,13 @@ class Sca_Controller_Action extends \Zend_Controller_Action
 	 * @param	array	$aOptions	pagination options
 	 * @return	Zend_Paginator
 	 */
-	protected function getPaginator($iPage, $sDbSort, array $aOptions = array())
+	protected function getPaginator($iPage, $sDbSort, array $aOptions = array(), $oWhere = null)
 	{
 		$oPaginator = $this->oFactory->getPaginator(
 			$iPage,
 			$this->iItemsPerPage,
 			[$sDbSort],
-			null,
+			$oWhere,
 			$aOptions
 		);
 
